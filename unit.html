@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: Unit.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Unit.cs</h1>
+							<pre>
+								<code>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class Unit : MonoBehaviour
+{
+	[Header("Type of Unit")]
+	public UnitType unitType;
+
+	[Space]
+	public List&ltGameObject&gt members = new List&ltGameObject&gt();
+
+	[Space]
+	public bool DebugUnit = false;
+
+
+	GameObject _memberPrefab;
+
+	int _maxMembers;
+	int _minMembers;
+
+	int _squadLeaderID = 0;
+	int _currentMemberCount = 1;
+
+	int _spawnMemberQueue = 0;
+	bool spawnAvailable = false;
+
+	bool _selected = false;
+
+	void Awake()
+	{
+		_currentMemberCount = members.Count;
+
+		InitializeUnitType();
+	}
+
+
+	void Update()
+	{
+		if (_spawnMemberQueue > 0 && spawnAvailable) //Spawn player and wait for it to finish
+		{
+			StartCoroutine(SpawnMember());
+			spawnAvailable = false;
+		}
+
+		if (_currentMemberCount &lt _minMembers) KillUnit(); //Not enough members to function, Unit is killed
+	}
+
+	/// &ltsummary&gt
+	/// Adds a new member to the unit (unless it's full).
+	/// &lt/summary&gt
+	/// &ltreturns&gt&lt/returns&gt
+	public IEnumerator SpawnMember()
+	{
+		if (_currentMemberCount &lt _maxMembers)
+		{
+			if(DebugUnit) Debug.Log("Spawning new member");
+
+			_spawnMemberQueue--;
+			_currentMemberCount++;
+
+			yield return new WaitForSecondsRealtime(5);
+
+			GameObject newMember;
+			newMember = Instantiate(_memberPrefab, this.gameObject.transform);
+			members.Add(newMember);
+			newMember.transform.position = members[_squadLeaderID].transform.position - (Vector3.right * _currentMemberCount);
+			newMember.GetComponent&ltSquadMember&gt().manager = this;
+
+			spawnAvailable = true;
+		}
+		else if (DebugUnit) Debug.Log("Squad full");
+	}
+
+	/// &ltsummary&gt
+	/// Removes the last character in the members list.
+	/// &lt/summary&gt
+	void KillMember()
+	{
+		Destroy(members[members.Count - 1]);
+		members.Remove(members[members.Count - 1]);
+		_currentMemberCount--;
+
+		if (DebugUnit) Debug.Log("Removed member");
+	}
+
+	/// &ltsummary&gt
+	/// Removes every character in members list, in turn removing the unit.
+	/// &lt/summary&gt
+	/// &ltparam name="dropWeapon"&gt&lt/param&gt
+	void KillUnit(bool dropWeapon = false)
+	{
+		if (DebugUnit) Debug.Log("Killed unit");
+
+		foreach (GameObject member in members)
+		{
+			KillMember();
+		}
+
+		if (dropWeapon)
+		{
+			//Drop abandoned weapon
+		}
+	}
+
+	/// &ltsummary&gt
+	/// Sets every character in the unit's NavMeshAgent destination to MousePosition's positions.
+	/// &lt/summary&gt
+	protected virtual void MoveToMousePos()
+	{
+		MousePosition mousePos = GameObject.Find("MousePosition").GetComponent&ltMousePosition&gt();
+
+		int positionID = 0;
+
+		foreach (GameObject member in members)
+		{
+			member.GetComponent&ltNavMeshAgent&gt().SetDestination(mousePos.positions[positionID].position);
+			positionID++;
+		}
+	}
+
+	/// &ltsummary&gt
+	/// Enable selection circle for every member.
+	/// &lt/summary&gt
+	public void SelectUnit()
+	{
+		_selected = true;
+
+		foreach (GameObject member in members)
+		{
+			member.GetComponent&ltselection_component&gt().Select();
+		}
+	}
+
+	/// &ltsummary&gt
+	/// Disable selection circle for every member.
+	/// &lt/summary&gt
+	public void DeselectUnit()
+	{
+		_selected = false;
+
+		foreach (GameObject member in members)
+		{
+			member.GetComponent&ltselection_component&gt().Deselect();
+		}
+	}
+
+	/// &ltsummary&gt
+	/// Sets local variables to UnitType values.
+	/// &lt/summary&gt
+	void InitializeUnitType()
+	{
+		_maxMembers = unitType.maxMembers;
+		_minMembers = unitType.minMembers;
+
+		_memberPrefab = unitType.memberPrefab;
+	}
+}	
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
