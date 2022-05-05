@@ -35,6 +35,7 @@
 								<code>
 using System.Collections;
 using System.Collections.Generic;
+using Pathfinding;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -44,154 +45,110 @@ public class Unit : MonoBehaviour
 	public UnitType unitType;
 
 	[Space]
-	public List&ltGameObject&gt members = new List&ltGameObject&gt();
+	public List&ltGameObject> members = new List&ltGameObject>();
+	
+	[HideInInspector] public int squadLeaderID = 0;
+	
+	protected GameObject memberPrefab;
 
 	[Space]
-	public bool DebugUnit = false;
+	public List&ltTransform> positions = new List&ltTransform>();
 
+	protected MousePosition _mousePos;
+	
+	protected int _maxMembers;
+	protected int _minMembers;
+	
+	protected int _currentMemberCount = 1;
 
-	GameObject _memberPrefab;
+	protected int _spawnMemberQueue = 0;
+	protected bool _spawnAvailable = false;
 
-	int _maxMembers;
-	int _minMembers;
+	protected bool _selected = false;
 
-	int _squadLeaderID = 0;
-	int _currentMemberCount = 1;
-
-	int _spawnMemberQueue = 0;
-	bool spawnAvailable = false;
-
-	bool _selected = false;
-
-	void Awake()
+	protected virtual void OnEnable()
 	{
 		_currentMemberCount = members.Count;
 
 		InitializeUnitType();
+		
+		_mousePos = GameObject.Find("MousePosition").GetComponent&ltMousePosition>();
 	}
-
-
-	void Update()
+	
+	protected virtual void Update()
 	{
-		if (_spawnMemberQueue > 0 && spawnAvailable) //Spawn player and wait for it to finish
+		if (_spawnMemberQueue > 0 && _spawnAvailable) //Spawn player and wait for it to finish
 		{
 			StartCoroutine(SpawnMember());
-			spawnAvailable = false;
+			_spawnAvailable = false;
 		}
 
-		if (_currentMemberCount &lt _minMembers) KillUnit(); //Not enough members to function, Unit is killed
+		if (_currentMemberCount &lt _minMembers) KillUnit();
 	}
 
-	/// &ltsummary&gt
+	/// &ltsummary>
 	/// Adds a new member to the unit (unless it's full).
-	/// &lt/summary&gt
-	/// &ltreturns&gt&lt/returns&gt
-	public IEnumerator SpawnMember()
+	/// &lt/summary>
+	/// &ltreturns>&lt/returns>
+	public virtual IEnumerator SpawnMember()
 	{
-		if (_currentMemberCount &lt _maxMembers)
-		{
-			if(DebugUnit) Debug.Log("Spawning new member");
-
-			_spawnMemberQueue--;
-			_currentMemberCount++;
-
-			yield return new WaitForSecondsRealtime(5);
-
-			GameObject newMember;
-			newMember = Instantiate(_memberPrefab, this.gameObject.transform);
-			members.Add(newMember);
-			newMember.transform.position = members[_squadLeaderID].transform.position - (Vector3.right * _currentMemberCount);
-			newMember.GetComponent&ltSquadMember&gt().manager = this;
-
-			spawnAvailable = true;
-		}
-		else if (DebugUnit) Debug.Log("Squad full");
+		yield return new WaitForSeconds(0);
 	}
 
-	/// &ltsummary&gt
+	/// &ltsummary>
 	/// Removes the last character in the members list.
-	/// &lt/summary&gt
-	void KillMember()
+	/// &lt/summary>
+	protected void KillMember()
 	{
 		Destroy(members[members.Count - 1]);
 		members.Remove(members[members.Count - 1]);
 		_currentMemberCount--;
 
-		if (DebugUnit) Debug.Log("Removed member");
+		if(DebugUnit) Debug.Log("Removed member");
 	}
 
-	/// &ltsummary&gt
+	/// &ltsummary>
 	/// Removes every character in members list, in turn removing the unit.
-	/// &lt/summary&gt
-	/// &ltparam name="dropWeapon"&gt&lt/param&gt
-	void KillUnit(bool dropWeapon = false)
-	{
-		if (DebugUnit) Debug.Log("Killed unit");
+	/// &lt/summary>
+	/// &ltparam name="dropWeapon">&lt/param>
+	protected virtual void KillUnit(bool dropWeapon = false) { }
 
-		foreach (GameObject member in members)
-		{
-			KillMember();
-		}
-
-		if (dropWeapon)
-		{
-			//Drop abandoned weapon
-		}
-	}
-
-	/// &ltsummary&gt
+	/// &ltsummary>
 	/// Sets every character in the unit's NavMeshAgent destination to MousePosition's positions.
-	/// &lt/summary&gt
-	protected virtual void MoveToMousePos()
-	{
-		MousePosition mousePos = GameObject.Find("MousePosition").GetComponent&ltMousePosition&gt();
+	/// &lt/summary>
+	protected virtual void MoveToMousePos() { }
 
-		int positionID = 0;
-
-		foreach (GameObject member in members)
-		{
-			member.GetComponent&ltNavMeshAgent&gt().SetDestination(mousePos.positions[positionID].position);
-			positionID++;
-		}
-	}
-
-	/// &ltsummary&gt
-	/// Enable selection circle for every member.
-	/// &lt/summary&gt
-	public void SelectUnit()
+	public virtual void SelectUnit()
 	{
 		_selected = true;
 
 		foreach (GameObject member in members)
 		{
-			member.GetComponent&ltselection_component&gt().Select();
+			member.GetComponent&ltselection_component>().Select();
 		}
 	}
 
-	/// &ltsummary&gt
-	/// Disable selection circle for every member.
-	/// &lt/summary&gt
-	public void DeselectUnit()
+	public virtual void DeselectUnit()
 	{
 		_selected = false;
 
 		foreach (GameObject member in members)
 		{
-			member.GetComponent&ltselection_component&gt().Deselect();
+			member.GetComponent&ltselection_component>().Deselect();
 		}
 	}
 
-	/// &ltsummary&gt
+	/// &ltsummary>
 	/// Sets local variables to UnitType values.
-	/// &lt/summary&gt
-	void InitializeUnitType()
+	/// &lt/summary>
+	protected void InitializeUnitType()
 	{
 		_maxMembers = unitType.maxMembers;
 		_minMembers = unitType.minMembers;
 
-		_memberPrefab = unitType.memberPrefab;
+		memberPrefab = unitType.memberPrefab;
 	}
-}	
+}
 								</code>
 							  </pre>
 
