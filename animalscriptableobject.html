@@ -93,19 +93,19 @@ public class AnimalScriptableObject : ScriptableObject
 			if(GUI.changed) EditorUtility.SetDirty(_SO);
 		}
 
-		/// <summary>
+		/// &ltsummary>
 		/// Draws eatText variable in the inspector.
-		/// </summary>
-		/// <param name="SO"></param>
+		/// &lt/summary>
+		/// &ltparam name="SO">&lt/param>
 		static void DrawEatText(AnimalScriptableObject SO)
 		{
 			SO.eatText = EditorGUILayout.TextField("Eat Text", SO.eatText);
 		}
 		
-		/// <summary>
+		/// &ltsummary>
 		/// Draws eatMeatText and eatLeavesText variables in the inspector.
-		/// </summary>
-		/// <param name="SO"></param>
+		/// &lt/summary>
+		/// &ltparam name="SO">&lt/param>
 		static void DrawOmnivoreDetails(AnimalScriptableObject SO)
 		{
 			EditorGUILayout.BeginVertical();
@@ -117,9 +117,9 @@ public class AnimalScriptableObject : ScriptableObject
 			EditorGUILayout.EndVertical();
 		}
 		
-		/// <summary>
+		/// &ltsummary>
 		/// Draws trick TrickEvent variable in the inspector.
-		/// </summary>
+		/// &lt/summary>
 		void DrawTrickEvent()
 		{
 			EditorGUILayout.Space();
