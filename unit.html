@@ -35,9 +35,8 @@
 								<code>
 using System.Collections;
 using System.Collections.Generic;
-using Pathfinding;
 using UnityEngine;
-using UnityEngine.AI;
+using UnityEngine.Events;
 
 public class Unit : MonoBehaviour
 {
@@ -47,106 +46,89 @@ public class Unit : MonoBehaviour
 	[Space]
 	public List&ltGameObject> members = new List&ltGameObject>();
 	
-	[HideInInspector] public int squadLeaderID = 0;
+	[HideInInspector] public int squadLeaderID = 0; //Temp
+
 	
-	protected GameObject memberPrefab;
+	//[SerializeField] private bool _selectable;
+	[HideInInspector] public SelectionManager selector;
 
-	[Space]
-	public List&ltTransform> positions = new List&ltTransform>();
-
-	protected MousePosition _mousePos;
+	//[SerializeField] private bool _hasHealth;
+	[HideInInspector] public HealthManager health;
 	
-	protected int _maxMembers;
-	protected int _minMembers;
-	
-	protected int _currentMemberCount = 1;
+	//[SerializeField] private bool _canMove;
+	[HideInInspector] public MovementManager mover;
 
-	protected int _spawnMemberQueue = 0;
-	protected bool _spawnAvailable = false;
+	[HideInInspector] public PositionsManager positions;
 
-	protected bool _selected = false;
+	[HideInInspector] public AbilityManager abilities;
+
 
 	protected virtual void OnEnable()
 	{
-		_currentMemberCount = members.Count;
-
-		InitializeUnitType();
+		if (selector == null) SetSelectionManager(this.gameObject);
+		if (health == null) SetHealthManager(this.gameObject);
+		if (mover == null) SetMovementManager(this.gameObject);
+		if (positions == null) SetPositionManager(transform.Find("Positions").gameObject);
+		if (abilities == null) SetAbilityManager(this.gameObject);
 		
-		_mousePos = GameObject.Find("MousePosition").GetComponent&ltMousePosition>();
+		InitializeUnitType();
+	}
+
+	private void SetSelectionManager(GameObject target)
+	{
+		if (target.GetComponent&ltSelectionManager>() == null)
+		{
+			selector = target.AddComponent&ltSelectionManager>();
+			selector.unitManager = this;
+		}
+		else selector = target.GetComponent&ltSelectionManager>();
+	}
+
+	private void SetHealthManager(GameObject target)
+	{
+		if (target.GetComponent&ltHealthManager>() == null)
+		{
+			health = target.AddComponent&ltHealthManager>();
+			health.unitManager = this;
+		}
+		else health = target.GetComponent&ltHealthManager>();
+	}
+
+	private void SetMovementManager(GameObject target)
+	{
+		if (target.GetComponent&ltMovementManager>() == null)
+		{
+			mover = target.AddComponent&ltMovementManager>();
+			mover.unitManager = this;
+		}
+		else mover = target.GetComponent&ltMovementManager>();
+	}
+
+	private void SetPositionManager(GameObject target)
+	{
+		if (target.GetComponent&ltPositionsManager>() == null)
+		{
+			positions = target.AddComponent&ltPositionsManager>();
+			positions.unitManager = this;
+		}
+		else positions = target.GetComponent&ltPositionsManager>();
 	}
 	
-	protected virtual void Update()
+	private void SetAbilityManager(GameObject target)
 	{
-		if (_spawnMemberQueue > 0 && _spawnAvailable) //Spawn player and wait for it to finish
+		if (target.GetComponent&ltAbilityManager>() == null)
 		{
-			StartCoroutine(SpawnMember());
-			_spawnAvailable = false;
+			abilities = target.AddComponent&ltAbilityManager>();
+			abilities.unitManager = this;
 		}
-
-		if (_currentMemberCount &lt _minMembers) KillUnit();
+		else abilities = target.GetComponent&ltAbilityManager>();
 	}
 
-	/// &ltsummary>
-	/// Adds a new member to the unit (unless it's full).
-	/// &lt/summary>
-	/// &ltreturns>&lt/returns>
-	public virtual IEnumerator SpawnMember()
+	private void InitializeUnitType()
 	{
-		yield return new WaitForSeconds(0);
-	}
-
-	/// &ltsummary>
-	/// Removes the last character in the members list.
-	/// &lt/summary>
-	protected void KillMember()
-	{
-		Destroy(members[members.Count - 1]);
-		members.Remove(members[members.Count - 1]);
-		_currentMemberCount--;
-
-		if(DebugUnit) Debug.Log("Removed member");
-	}
-
-	/// &ltsummary>
-	/// Removes every character in members list, in turn removing the unit.
-	/// &lt/summary>
-	/// &ltparam name="dropWeapon">&lt/param>
-	protected virtual void KillUnit(bool dropWeapon = false) { }
-
-	/// &ltsummary>
-	/// Sets every character in the unit's NavMeshAgent destination to MousePosition's positions.
-	/// &lt/summary>
-	protected virtual void MoveToMousePos() { }
-
-	public virtual void SelectUnit()
-	{
-		_selected = true;
-
-		foreach (GameObject member in members)
-		{
-			member.GetComponent&ltselection_component>().Select();
-		}
-	}
-
-	public virtual void DeselectUnit()
-	{
-		_selected = false;
-
-		foreach (GameObject member in members)
-		{
-			member.GetComponent&ltselection_component>().Deselect();
-		}
-	}
-
-	/// &ltsummary>
-	/// Sets local variables to UnitType values.
-	/// &lt/summary>
-	protected void InitializeUnitType()
-	{
-		_maxMembers = unitType.maxMembers;
-		_minMembers = unitType.minMembers;
-
-		memberPrefab = unitType.memberPrefab;
+		health.memberPrefab = unitType.memberPrefab;
+		health.maxMembers = unitType.maxMembers;
+		health.minMembers = unitType.minMembers;
 	}
 }
 								</code>

@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: MovementManager.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">MovementManager.cs</h1>
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Pathfinding;
+using UnityEngine;
+
+public class MovementManager : MonoBehaviour
+{
+	public Unit unitManager;
+	private MousePosition _mousePos;
+
+	private void Start()
+	{
+		InitializePositions();
+		_mousePos = GameObject.Find("MousePosition").GetComponent&ltMousePosition>();
+		
+		AddMoveEvents();
+	}
+
+	private void OnDisable()
+	{
+		RemoveMoveEvents();
+	}
+
+	/// &ltsummary>
+	/// Add listeners to Single- and MarqueeSelect.
+	/// &lt/summary>
+	public void AddMoveEvents()
+	{
+		_mousePos.SingleSelect.AddListener(MoveToMousePos);
+		_mousePos.MarqueeSelect.AddListener(TurnPositions);
+		_mousePos.MarqueeSelect.AddListener(MoveToMousePos);
+	}
+
+	/// &ltsummary>
+	/// Add listeners to Single- and MarqueeSelect.
+	/// &lt/summary>
+	public void RemoveMoveEvents()
+	{
+		_mousePos.SingleSelect.RemoveListener(MoveToMousePos);
+		_mousePos.MarqueeSelect.RemoveListener(TurnPositions);
+		_mousePos.MarqueeSelect.RemoveListener(MoveToMousePos);
+	}
+	
+	/// &ltsummary>
+	/// Sets every character in the unit's NavMeshAgent destination to MousePosition's positions.
+	/// &lt/summary>
+	protected virtual void MoveToMousePos()
+	{
+		unitManager.positions.gameObject.transform.position = _mousePos.transform.position;
+		
+		foreach (GameObject member in unitManager.members)
+		{
+			member.GetComponent&ltMemberMover>().MoveToPos();
+		}
+	}
+
+	/// &ltsummary>
+	/// Set pathfinding target for each member to positions from position list.
+	/// &lt/summary>
+	private void InitializePositions()
+	{
+		PositionsManager pos = unitManager.positions;
+		
+		foreach (GameObject member in unitManager.members)
+		{
+			member.GetComponent&ltMemberMover>().target = pos.positions[unitManager.members.IndexOf(member)];
+		}
+	}
+
+	/// &ltsummary>
+	/// Turn positions to _mousePos rotation.
+	/// &lt/summary>
+	private void TurnPositions()
+	{
+		unitManager.positions.transform.rotation = _mousePos.transform.rotation;
+	}
+}
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
