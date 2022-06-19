@@ -2559,6 +2559,29 @@ input, select, textarea {
 					color: #953d75;
 				}
 
+/*  Model Viewer*/
+
+	#aSide {
+		padding: 25px 25px 100px 25px;
+		height: 600px;
+		width: 600px;
+		position: relative;
+		vertical-align: middle;
+	}
+				
+	/* This styles the 3D object inserted in the aside container */
+	#aSide model-viewer {
+		padding: 25px 25px 100px 25px;
+		height: 600px;
+		width: 600px;
+		position: relative;
+		top: 0;
+		left: 0;
+		border: none;
+		vertical-align: middle;
+		
+	}
+
 /* Image */
 
 	.image {
@@ -2567,6 +2590,18 @@ input, select, textarea {
 		display: inline-block;
 		position: relative;
 	}
+
+		.image.artwork {
+			padding: 25px 25px 25px 25px;
+			width: 600px;
+			height: 600px;
+		}
+		.image.artworkunscaled {
+			padding: 25px 25px 25px 25px;
+			width: 600px;
+			height: auto;
+			vertical-align: middle;
+		}
 
 		.image img {
 			border-radius: 0.25em;
