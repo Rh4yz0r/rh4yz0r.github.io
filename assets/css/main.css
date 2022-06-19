@@ -2562,18 +2562,18 @@ input, select, textarea {
 /*  Model Viewer*/
 
 	#aSide {
-		padding: 25px 25px 100px 25px;
-		height: 600px;
-		width: 600px;
+		padding: 1em 1em 4em 1em;
+		height: 25em;
+		width: 25em;
 		position: relative;
 		vertical-align: middle;
 	}
 				
 	/* This styles the 3D object inserted in the aside container */
 	#aSide model-viewer {
-		padding: 25px 25px 100px 25px;
-		height: 600px;
-		width: 600px;
+		padding: 1em 1em 4em 1em;
+		height: 25em;
+		width: 25em;
 		position: relative;
 		top: 0;
 		left: 0;
@@ -2592,13 +2592,13 @@ input, select, textarea {
 	}
 
 		.image.artwork {
-			padding: 25px 25px 25px 25px;
-			width: 600px;
-			height: 600px;
+			padding: 1em 1em 1em 1em;
+			width: 25em;
+			height: 25em;
 		}
 		.image.artworkunscaled {
-			padding: 25px 25px 25px 25px;
-			width: 600px;
+			padding: 1em 1em 1em 1em;
+			width: 25em;
 			height: auto;
 			vertical-align: middle;
 		}
