@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: GameObjectPoolManager.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">GameObjectPoolManager.cs</h1>
+
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+/*
+
+ Description:
+
+ This script manages all of the GameObject pools.
+ You can create GameObjectPools in the inspector list, set the prefab, amount, name, etc.
+ You can Get GameObjects from the any pool through name or reference.
+ Be sure to Return them to the pool after use or deactivation.
+ When a pool is asked for an item, but every single one is in use, it automatically doubles in size and returns a newly generated one.
+ To reset the pools to their original size, you can call ResetObjectPools.
+
+ */
+
+[System.Serializable]
+public class GameObjectPool
+{
+    [Tooltip("Name used for identifying this pool")] public string Name;
+    [Tooltip("GameObject Prefab to pool")] public GameObject GameObjectPrefab;
+    [SerializeField, Tooltip("Amount of GameObjects to pool")] private uint Amount;
+    [Tooltip("List of pooled GameObjects")] public Queue&ltGameObject> PooledGameObjects;
+    [HideInInspector] public List&ltGameObject> poolList = new List&ltGameObject>();
+    public Transform Library { get; set; } //Parent GameObject for pool items.
+    public uint OriginalAmount { get; set; } //Used for doubling and resetting pool.
+    public uint CurrentAmount { get => Amount; set => Amount = value; } //Used for doubling and resetting pool.
+
+    public GameObjectPool(string name, GameObject prefab, uint objectAmount)
+    {
+        this.Name = name;
+        this.GameObjectPrefab = prefab;
+        this.Amount = objectAmount;
+    }
+}
+
+public class GameObjectPoolManager : MonoBehaviour
+{
+    [Tooltip("List of GameObject pools")] public List&ltGameObjectPool> gameObjectPools; //Init in Inspector
+    private Dictionary&ltstring, GameObjectPool> _poolDict;
+
+    public bool enableEditorLogs = false;
+    private bool _editorLogs = false;
+
+    #region Singleton
+    public static GameObjectPoolManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this) { Destroy(this.gameObject); }
+        else { Instance = this; }
+    }
+    #endregion
+
+    private void Start()
+    {
+        SetOriginalAmounts();
+        PopulatePoolDictionary();
+        PopulateObjectPools();
+
+#if UNITY_EDITOR
+        _editorLogs = enableEditorLogs;
+#endif
+    }
+
+    /// &ltsummary>
+    /// Sets the original pool amount.
+    /// &lt/summary>
+    private void SetOriginalAmounts()
+    {
+        foreach (GameObjectPool pool in gameObjectPools)
+        {
+            pool.OriginalAmount = pool.CurrentAmount;
+        }
+    }
+
+    /// &ltsummary>
+    /// Instantiate all pools and all pool items.
+    /// &lt/summary>
+    private void PopulateObjectPools()
+    {
+        foreach (GameObjectPool pool in gameObjectPools)
+        {
+            pool.PooledGameObjects = new Queue&ltGameObject>();
+
+            GameObject library = new GameObject($"{pool.Name} Pool");
+            library.transform.parent = this.gameObject.transform;
+            pool.Library = library.transform;
+
+            for (int i = 0; i &lt pool.OriginalAmount; i++)
+            {
+                GameObject temp = Instantiate(pool.GameObjectPrefab, library.transform);
+                temp.SetActive(false);
+                pool.PooledGameObjects.Enqueue(temp);
+                pool.poolList.Add(temp);
+            }
+        }
+    }
+
+    /// &ltsummary>
+    /// Resets all pools to the original amounts.
+    /// &lt/summary>
+    public void ResetObjectPools()
+    {
+        for (int i = 0; i &lt gameObjectPools.Count; i++)
+        {
+            for (int j = 0; j &lt gameObjectPools[i].poolList.Count; j++)
+            {
+                GameObject item = gameObjectPools[i].poolList[j];
+                if (gameObjectPools[i].PooledGameObjects.Contains(item)) continue;
+
+                ReturnGameObjectToPool(gameObjectPools[i], item);
+            }
+        }
+    }
+
+    /// &ltsummary>
+    /// Populates Dictionary of pools for getting by PoolName.
+    /// &lt/summary>
+    private void PopulatePoolDictionary()
+    {
+        _poolDict = new Dictionary&ltstring, GameObjectPool>();
+
+        foreach (GameObjectPool pool in gameObjectPools)
+        {
+            _poolDict.Add(pool.Name, pool);
+        }
+    }
+
+    /// &ltsummary>
+    /// Returns the GameObjectPool with given PoolName.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPoolName">Name of pool you want to get&lt/param>
+    /// &ltreturns>&lt/returns>
+    public GameObjectPool GetPoolFromName(string gameObjectPoolName)
+    {
+        _poolDict.TryGetValue(gameObjectPoolName, out var gameObjectPool);
+        if (_editorLogs && gameObjectPool == null) Debug.LogError($"Couldn't find pool with name: {gameObjectPoolName}");
+        return gameObjectPool;
+    }
+
+    /// &ltsummary>
+    /// Returns a GameObject from given Pool.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPool">Pool to get the GameObject from&lt/param>
+    /// &ltreturns>&lt/returns>
+    public GameObject GetObjectFromPool(GameObjectPool gameObjectPool)
+    {
+        GameObject go;
+
+        try { go = gameObjectPool.PooledGameObjects.Dequeue(); }
+        catch
+        {
+            if (_editorLogs) Debug.LogWarning($"Tried to get GameObject from {gameObjectPool.Name}, but pool was empty. Doubling pool size.");
+            DoublePoolSize(gameObjectPool);
+            go = gameObjectPool.PooledGameObjects.Dequeue();
+        }
+        return go;
+    }
+
+    /// &ltsummary>
+    /// Returns a GameObject from pool with given PoolName.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPoolName">Name of pool to get the GameObject from&lt/param>
+    /// &ltreturns>&lt/returns>
+    public GameObject GetObjectFromPool(string gameObjectPoolName)
+    {
+        return GetObjectFromPool(GetPoolFromName(gameObjectPoolName));
+    }
+
+    /// &ltsummary>
+    /// Return given GameObject to pool with given Pool.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPool">Pool to return GameObject to&lt/param>
+    /// &ltparam name="gameObject">GameObject to return to pool&lt/param>
+    public void ReturnGameObjectToPool(GameObjectPool gameObjectPool, GameObject gameObject)
+    {
+        if (gameObject == null) return;
+
+        gameObject.SetActive(false);
+        gameObject.transform.parent = gameObjectPool.Library;
+        gameObjectPool.PooledGameObjects.Enqueue(gameObject);
+    }
+
+    /// &ltsummary>
+    /// Return given GameObject to pool with given PoolName.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPoolName">Name of pool to return GameObject to&lt/param>
+    /// &ltparam name="gameObject">GameObject to return to pool&lt/param>
+    public void ReturnGameObjectToPool(string gameObjectPoolName, GameObject gameObject)
+    {
+        ReturnGameObjectToPool(GetPoolFromName(gameObjectPoolName), gameObject);
+    }
+
+    /// &ltsummary>
+    /// Doubles given pool.
+    /// Instantiates and adds the current amount of items in the pool, then doubles the current amount.
+    /// &lt/summary>
+    /// &ltparam name="gameObjectPool">Pool which you want to double&lt/param>
+    private void DoublePoolSize(GameObjectPool gameObjectPool)
+    {
+        for (int i = 0; i &lt gameObjectPool.CurrentAmount; i++)
+        {
+            GameObject temp = Instantiate(gameObjectPool.GameObjectPrefab, gameObjectPool.Library.transform);
+            temp.SetActive(false);
+            gameObjectPool.PooledGameObjects.Enqueue(temp);
+            gameObjectPool.poolList.Add(temp);
+        }
+
+        gameObjectPool.CurrentAmount *= 2;
+    }
+}
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: Unit.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Unit.cs</h1>
+							<pre>
+								<code>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class Unit : MonoBehaviour
+{
+	[Header("Type of Unit")]
+	public UnitType unitType;
+
+	[Space]
+	public List&ltGameObject> members = new List&ltGameObject>();
+	
+	[HideInInspector] public int squadLeaderID = 0; //Temp
+
+	
+	[HideInInspector] public SelectionManager selector;
+
+	[HideInInspector] public HealthManager health;
+	
+	[HideInInspector] public MovementManager mover;
+
+	[HideInInspector] public PositionsManager positions;
+
+	[HideInInspector] public AbilityManager abilities;
+
+
+	protected virtual void OnEnable()
+	{
+		if (selector == null) SetSelectionManager(this.gameObject);
+		if (health == null) SetHealthManager(this.gameObject);
+		if (mover == null) SetMovementManager(this.gameObject);
+		if (positions == null) SetPositionManager(transform.Find("Positions").gameObject);
+		if (abilities == null) SetAbilityManager(this.gameObject);
+		
+		InitializeUnitType();
+	}
+
+	private void SetSelectionManager(GameObject target)
+	{
+		if (target.GetComponent&ltSelectionManager>() == null)
+		{
+			selector = target.AddComponent&ltSelectionManager>();
+			selector.unitManager = this;
+		}
+		else selector = target.GetComponent&ltSelectionManager>();
+	}
+
+	private void SetHealthManager(GameObject target)
+	{
+		if (target.GetComponent&ltHealthManager>() == null)
+		{
+			health = target.AddComponent&ltHealthManager>();
+			health.unitManager = this;
+		}
+		else health = target.GetComponent&ltHealthManager>();
+	}
+
+	private void SetMovementManager(GameObject target)
+	{
+		if (target.GetComponent&ltMovementManager>() == null)
+		{
+			mover = target.AddComponent&ltMovementManager>();
+			mover.unitManager = this;
+		}
+		else mover = target.GetComponent&ltMovementManager>();
+	}
+
+	private void SetPositionManager(GameObject target)
+	{
+		if (target.GetComponent&ltPositionsManager>() == null)
+		{
+			positions = target.AddComponent&ltPositionsManager>();
+			positions.unitManager = this;
+		}
+		else positions = target.GetComponent&ltPositionsManager>();
+	}
+	
+	private void SetAbilityManager(GameObject target)
+	{
+		if (target.GetComponent&ltAbilityManager>() == null)
+		{
+			abilities = target.AddComponent&ltAbilityManager>();
+			abilities.unitManager = this;
+		}
+		else abilities = target.GetComponent&ltAbilityManager>();
+	}
+
+	private void InitializeUnitType()
+	{
+		health.memberPrefab = unitType.memberPrefab;
+		health.maxMembers = unitType.maxMembers;
+		health.minMembers = unitType.minMembers;
+	}
+}
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

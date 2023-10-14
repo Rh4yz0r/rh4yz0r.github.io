@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: SessionInventory.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">SessionInventory.cs</h1>
+							
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Mathematics;
+using UnityEngine;
+
+/*
+ 
+ Description:
+ 
+ These scripts contain all of the information to be stored in Unity's PlayerPrefs file.
+ 
+ */
+
+/// &ltsummary>
+/// Static class containing some constraints for the inventory.
+/// &lt/summary>
+public static class InventoryConstraints
+{
+	public static int MAX_LIST_SIZE = 8;
+}
+
+#region InventoryItem
+/// &ltsummary>
+/// Base class for anything to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+/// &lttypeparam name="TValueType">&lt/typeparam>
+[System.Serializable]
+public class SessionInventoryItem&ltTValueType>
+{
+	public TValueType Value;
+	protected TValueType InitialValue;
+	public string Key { get; private set; }
+	
+	public SessionInventoryItem(string keyname, TValueType initialValue)
+	{
+		Key = keyname;
+		InitialValue = initialValue;
+	}
+
+	public virtual void Initialize()
+	{
+		Value = InitialValue;
+		Save();
+	}
+	
+	public virtual void Save() { }
+	public virtual void Load() { }
+}
+
+/// &ltsummary>
+/// Class containing Int value to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryInt : SessionInventoryItem&ltint>
+{
+	public SessionInventoryInt(string keyname, int initialValue = 0) : base(keyname, initialValue) { }
+	public override void Save() { PlayerPrefs.SetInt(Key, Value); }
+	public override void Load() { Value = PlayerPrefs.GetInt(Key); }
+}
+
+/// &ltsummary>
+/// Class containing Float value to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryFloat : SessionInventoryItem&ltfloat>
+{
+	public SessionInventoryFloat(string keyname, float initialValue = 0) : base(keyname, initialValue) { }
+	public override void Save() { PlayerPrefs.SetFloat(Key, Value); }
+	public override void Load() { Value = PlayerPrefs.GetFloat(Key); }
+}
+
+/// &ltsummary>
+/// Class containing String value to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryString : SessionInventoryItem&ltstring>
+{
+	public SessionInventoryString(string keyname, string initialValue = "") : base(keyname, initialValue) { }
+	public override void Save() { PlayerPrefs.SetString(Key, Value); }
+	public override void Load() { Value = PlayerPrefs.GetString(Key); }
+}
+
+/// &ltsummary>
+/// Class containing bool value to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryBool : SessionInventoryItem&ltbool>
+{
+	private int _intValue
+	{
+		get { return Value ? 1 : 0; }
+		set { Value = value != 0; }
+	}
+
+	public SessionInventoryBool(string keyname, bool initialValue = false) : base(keyname, initialValue) { }
+	public override void Save() { PlayerPrefs.SetInt(Key, _intValue); }
+	public override void Load() { _intValue = PlayerPrefs.GetInt(Key); }
+}
+#endregion
+
+#region InventoryList
+/// &ltsummary>
+/// Base class for any list to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+/// &lttypeparam name="TValueType">&lt/typeparam>
+[System.Serializable]
+public class SessionInventoryList&ltTValueType>
+{
+	public TValueType[] Values;
+	protected TValueType[] InitialValues;
+	public string Key { get; private set; }
+
+	protected string LengthKey => $"{Key} Length";
+	protected int ArrayLength
+	{
+		get
+		{
+			if(Values != null) return Values.Length;
+			return 0;
+		}
+	}
+
+	public SessionInventoryList(string keyname, TValueType[] initialValues)
+	{
+		Key = keyname;
+		initialValues ??= Array.Empty&ltTValueType>();
+		InitialValues = initialValues;
+	}
+
+	public virtual void Initialize()
+	{
+		Values = InitialValues;
+		Save();
+	}
+	
+	public virtual void Save() { }
+	public virtual void Load() { }
+
+	public virtual void Clear()
+	{
+		for (int i = 0; i &lt InventoryConstraints.MAX_LIST_SIZE; i++)
+		{
+			PlayerPrefs.DeleteKey($"{Key}{i}");
+		}
+	}
+}
+
+/// &ltsummary>
+/// Class containing Int List values to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryIntList : SessionInventoryList&ltint>
+{
+	public SessionInventoryIntList(string keyname, int[] initialValues = null) : base(keyname, initialValues) { }
+
+	public override void Save()
+	{
+		PlayerPrefs.SetInt(LengthKey, ArrayLength);
+		
+		for (int i = 0; i &lt Values.Length && i &lt InventoryConstraints.MAX_LIST_SIZE; i++)
+		{
+			PlayerPrefs.SetInt($"{Key}{i}", Values[i]);
+		}
+	}
+
+	public override void Load()
+	{
+		int savedLength = PlayerPrefs.GetInt(LengthKey);
+		Values = new int[savedLength];
+		for (int i = 0; i &lt savedLength; i++)
+		{
+			Values[i] = PlayerPrefs.GetInt($"{Key}{i}");
+		}
+	}
+}
+
+/// &ltsummary>
+/// Class containing Float List values to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryFloatList : SessionInventoryList&ltfloat>
+{
+	public SessionInventoryFloatList(string keyname, float[] initialValues = null) : base(keyname, initialValues) { }
+
+	public override void Save()
+	{
+		PlayerPrefs.SetInt(LengthKey, ArrayLength);
+		
+		for (int i = 0; i &lt Values.Length && i &lt InventoryConstraints.MAX_LIST_SIZE; i++)
+		{
+			PlayerPrefs.SetFloat($"{Key}{i}", Values[i]);
+		}
+	}
+
+	public override void Load()
+	{
+		int savedLength = PlayerPrefs.GetInt(LengthKey);
+		
+		Values = new float[savedLength];
+		for (int i = 0; i &lt savedLength; i++)
+		{
+			Values[i] = PlayerPrefs.GetFloat($"{Key}{i}");
+		}
+	}
+}
+
+/// &ltsummary>
+/// Class containing String List values to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventoryStringList : SessionInventoryList&ltstring>
+{
+	public SessionInventoryStringList(string keyname, string[] initialValues = null) : base(keyname, initialValues) { }
+
+	public override void Save()
+	{
+		PlayerPrefs.SetInt(LengthKey, ArrayLength);
+		
+		for (int i = 0; i &lt Values.Length && i &lt InventoryConstraints.MAX_LIST_SIZE; i++)
+		{
+			PlayerPrefs.SetString($"{Key}{i}", Values[i]);
+		}
+	}
+
+	public override void Load()
+	{
+		int savedLength = PlayerPrefs.GetInt(LengthKey);
+		
+		Values = new string[savedLength];
+		for (int i = 0; i &lt savedLength; i++)
+		{
+			Values[i] = PlayerPrefs.GetString($"{Key}{i}");
+		}
+	}
+}
+#endregion
+
+/// &ltsummary>
+/// Script containing data to be stored in Unity's PlayerPrefs.
+/// &lt/summary>
+[System.Serializable]
+public class SessionInventory
+{
+	public SessionInventoryBool PlayerPrefsInitialized = new("initialized", true);
+	
+	public SessionInventoryInt ScrapAmount = new ("scrap", 0);
+	public SessionInventoryIntList CraftedWeaponAmount = new ("crafted weapons");
+	public SessionInventoryFloat Volume = new ("volume", 1);
+	
+	public SessionInventoryStringList PointWeaponIdentifiers = new ("weapons");
+}										
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

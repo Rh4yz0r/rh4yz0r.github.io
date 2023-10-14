@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: HealthManager.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">HealthManager.cs</h1>
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class HealthManager : MonoBehaviour
+{
+	public Unit unitManager;
+
+	public UnityEvent onDamageTaken;
+	public UnityEvent onMemberKilled;
+	public UnityEvent onUnitKilled;
+	
+	[HideInInspector] public GameObject memberPrefab;
+	
+	[HideInInspector] public int maxMembers;
+	[HideInInspector] public int minMembers;
+	
+	private int _currentMemberCount = 1;
+
+	private int _spawnMemberQueue = 0;
+	private bool _spawnAvailable = false;
+	
+	
+	#region DebugTools
+	[Header("Debug Buttons")]
+	public bool DebugUnit;
+	
+	[Space]
+	public bool spawnMember;
+	public bool killMember;
+	#endregion
+	
+	
+	private void Start()
+	{
+		_currentMemberCount = unitManager.members.Count;
+	}
+
+	protected virtual void Update()
+	{
+		#region DebugButtons
+		if (spawnMember) //Button
+		{
+			if (_currentMemberCount + _spawnMemberQueue &lt maxMembers) //Check if place available
+			{
+				_spawnMemberQueue++;
+				if(DebugUnit) Debug.Log("Added to queue");
+				if(DebugUnit) Debug.Log($"Current queue {_spawnMemberQueue}");
+			}
+			else if(DebugUnit) Debug.Log("Queue full");
+			spawnMember = false;
+		}
+
+		if (killMember) //Button
+		{
+			KillMember();
+			killMember = false;
+		}
+		#endregion
+		
+		if (_spawnMemberQueue > 0 && _spawnAvailable) //Spawn player and wait for it to finish
+		{
+			StartCoroutine(SpawnMember());
+			_spawnAvailable = false;
+		}
+
+		if (_currentMemberCount &lt minMembers) KillUnit();
+	}
+	
+	/// &ltsummary>
+	/// Adds a new member to the unit (unless it's full).
+	/// &lt/summary>
+	/// &ltreturns>&lt/returns>
+	public virtual IEnumerator SpawnMember()
+	{
+		yield return new WaitForSeconds(0);
+	}
+
+	/// &ltsummary>
+	/// Removes the last character in the members list.
+	/// &lt/summary>
+	protected void KillMember()
+	{
+		Destroy(unitManager.members[unitManager.members.Count - 1]);
+		unitManager.members.Remove(unitManager.members[unitManager.members.Count - 1]);
+		_currentMemberCount--;
+
+		if(DebugUnit) Debug.Log("Removed member");
+	}
+
+	/// &ltsummary>
+	/// Removes every character in members list, in turn removing the unit.
+	/// &lt/summary>
+	/// &ltparam name="dropWeapon">&lt/param>
+	protected virtual void KillUnit(bool dropWeapon = false) { }
+}
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

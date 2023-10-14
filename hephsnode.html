@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: HephsNode.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">HephsNode.cs</h1>
+
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Hephaestus.NodeSystem;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace NodeSystem
+{
+	public class HephsNode : Node/*, IHephsNode*/
+	{
+		protected HephsNode() { }
+
+		public void AddNew(HephsGraphView graphView, Vector2 position)
+		{
+			SetData();
+
+			//Set position
+			SetToPosition(position);
+
+			Generate(graphView);
+			
+			SaveData(graphView);
+		}
+
+		public void AddLoaded(HephsGraphView graphView, HephsNodeData dataToLoad)
+		{
+			SetData(dataToLoad);
+
+			//Set position
+			SetToPosition(dataToLoad.position);
+			
+			Generate(graphView);
+			
+			GraphSaveUtility.OnNodesGenerated += () => GenerateEdges(dataToLoad.PortDatas.Where(x => x.Direction == Direction.Output).ToList(), graphView);
+			GraphSaveUtility.OnLateGenerated += () => SaveData(graphView);
+		}
+
+		protected virtual void Generate(HephsGraphView graphView)
+		{
+			graphView.AddElement(this);
+			
+			//Remove collapse button
+			titleButtonContainer.Remove(m_CollapseButton);
+
+			titleContainer.style.paddingRight = 5;
+		}
+
+		public void GenerateEdges(List&ltNodePortData> nodePortDatas, HephsGraphView graphView)
+		{
+			foreach (var nodePortData in nodePortDatas)
+			{
+				foreach (var edge in nodePortData.Edges)
+				{
+					List&ltHephsNodePort> ports = graphView.ports.ToList().Cast&ltHephsNodePort>().ToList();
+
+					HephsNodePort output = ports.First(x => x.Data.GUID == edge.OutputPortGUID);
+					HephsNodePort input = ports.First(x => x.Data.GUID == edge.InputPortGUID);
+					Edge newEdge = output?.ConnectTo(input);
+					graphView.Add(newEdge);
+				}
+			}
+		}
+
+		protected virtual void SetData(HephsNodeData dataToLoad = null)
+		{
+			
+		}
+
+		public virtual void SaveData(HephsGraphView graphView)
+		{
+			graphView.RefreshTempFile();
+		}
+
+		protected void SavePosition(HephsNodeData data)
+		{
+			data.position = GetPosition();
+		}
+
+		protected void SavePortEdges(List&ltNodePortData> portDatas)
+		{
+			foreach (var nodePortData in portDatas)
+			{
+				nodePortData.Edges = new List&ltPortEdge>();
+				HephsNodePort port = mainContainer.Query&ltHephsNodePort>().Where(x => x.Data.GUID == nodePortData.GUID).First();
+
+				foreach (var edge in port.connections)
+				{
+					HephsNodePort input = edge.input as HephsNodePort;
+					HephsNodePort output = edge.output as HephsNodePort;
+
+					nodePortData.Edges.Add(new PortEdge
+					{
+						InputNodeGUID = input.Data.NodeGUID,
+						InputPortGUID = input.Data.GUID,
+						OutputNodeGUID = output.Data.NodeGUID,
+						OutputPortGUID = output.Data.GUID
+					});
+				}
+			}
+		}
+
+		/// &ltsummary>
+		/// Set Node to position in GraphView
+		/// &lt/summary>
+		/// &ltparam name="position">Desired position in GraphView&lt/param>
+		protected void SetToPosition(Vector2 position)
+		{
+			SetPosition(new Rect(position, GetSize()));
+		}
+		
+		/// &ltsummary>
+		/// Set Node to position in GraphView
+		/// &lt/summary>
+		/// &ltparam name="position">Desired position in GraphView&lt/param>
+		protected void SetToPosition(Rect position)
+		{
+			SetPosition(position);
+		}
+
+		/// &ltsummary>
+		/// Get current node Size as Vector2
+		/// &lt/summary>
+		/// &ltreturns>&lt/returns>
+		protected Vector2 GetSize()
+		{
+			return new Vector2(resolvedStyle.width, resolvedStyle.height);
+		}
+		
+		/// &ltsummary>
+		/// Refreshes ExpansionContainer and input- and outputContainer
+		/// &lt/summary>
+		protected void RefreshNode()
+		{
+			RefreshExpandedState();
+			RefreshPorts();
+		}
+
+		/// &ltsummary>
+		/// Creates a new NodePort
+		/// &lt/summary>
+		/// &ltparam name="dataToLoad">Port data to load into new port&lt/param>
+		/// &ltreturns>&lt/returns>
+		protected HephsNodePort CreateNodeInputPort(HephsNodeData nodeData, NodePortData dataToLoad = null)
+		{
+			if (dataToLoad != null) { return LoadNodePort(dataToLoad); }
+			
+			HephsNodePort newPort = HephsNodePort.Create&ltEdge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(float));
+			newPort.Data = new NodePortData
+			{
+				Direction = Direction.Input,
+				Capacity = Port.Capacity.Multi,
+				NodeGUID = nodeData.GUID,
+				Name = "Input"
+			};
+			newPort.portName = newPort.Data.Name;
+			nodeData.PortDatas.Add(newPort.Data);
+			return newPort;
+
+		}
+		
+		/// &ltsummary>
+		/// Creates a new NodePort
+		/// &lt/summary>
+		/// &ltparam name="dataToLoad">Port data to load into new port&lt/param>
+		/// &ltreturns>&lt/returns>
+		protected HephsNodePort CreateNodeOutputPort(HephsNodeData nodeData, NodePortData dataToLoad = null)
+		{
+			if (dataToLoad != null) { return LoadNodePort(dataToLoad); }
+			
+			HephsNodePort newPort = HephsNodePort.Create&ltEdge>(Orientation.Horizontal, Direction.Output, Port.Capacity.Single, typeof(float));
+			newPort.Data = new NodePortData
+			{
+				Direction = Direction.Output,
+				Capacity = Port.Capacity.Single,
+				NodeGUID = nodeData.GUID,
+				Name = "Output"
+			};
+			newPort.portName = newPort.Data.Name;
+			nodeData.PortDatas.Add(newPort.Data);
+			return newPort;
+		}
+
+		private HephsNodePort LoadNodePort(NodePortData dataToLoad)
+		{
+			HephsNodePort loadedPort = HephsNodePort.Create&ltEdge>(Orientation.Horizontal, dataToLoad.Direction, dataToLoad.Capacity, typeof(float));
+			loadedPort.Data = dataToLoad;
+			loadedPort.portName = loadedPort.Data.Name;
+			return loadedPort;
+		}
+	}
+}										
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
