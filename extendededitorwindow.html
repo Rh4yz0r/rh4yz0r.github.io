@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: ExtendedEditorWindow.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">ExtendedEditorWindow.cs</h1>
+							
+							<pre>
+								<code>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Hephaestos.Extensions
+{
+	public class ExtendedEditorWindow : EditorWindow
+	{
+		#region Singleton
+
+		public static ExtendedEditorWindow Instance { get; private set; }
+
+		private void InitSingleton()
+		{
+			if (Instance != null && Instance != this)
+			{
+				Destroy(this);
+			}
+			else
+			{
+				Instance = this;
+			}
+		}
+
+		#endregion
+
+		//Private variables
+		private bool _initialized;
+
+		//Overriding protected value to public
+		public void SetUnsavedChanges(bool value)
+		{
+			hasUnsavedChanges = value;
+		}
+
+		/// &ltsummary>
+		/// Create a new editor window of type TWindowType
+		/// &lt/summary>
+		/// &ltparam name="title">Window name.&lt/param>
+		/// &ltparam name="saveChangesMessage">Popup message when editor window is closed with unsaved changes.&lt/param>
+		/// &lttypeparam name="TWindowType">Window type (Child type of ExtendedEditorWindow).&lt/typeparam>
+		protected static void CreateWindow&ltTWindowType>(string title,
+			string saveChangesMessage = "This window has unsaved changes. Would you like to save?")
+			where TWindowType : ExtendedEditorWindow
+		{
+			var window = GetWindow&ltTWindowType>();
+			window.titleContent = new GUIContent(title);
+			window.OnWindowOpen();
+			window.saveChangesMessage = saveChangesMessage;
+		}
+
+		protected virtual void OnEnable()
+		{
+			LayoutUI();
+
+			Application.quitting += HandleQuitting;
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += BeforeAssemblyReload;
+			UnityEditor.AssemblyReloadEvents.afterAssemblyReload += AfterAssemblyReload;
+			if (_initialized) DuringAssemblyReload();
+
+			if (!_initialized)
+			{
+				InitSingleton();
+				Initialize();
+				_initialized = true;
+			}
+		}
+
+		/// &ltsummary>
+		/// Called on window initialization.
+		/// &lt/summary>
+		protected virtual void Initialize()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window opened.
+		/// &lt/summary>
+		protected virtual void OnWindowOpen()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window closed.
+		/// &lt/summary>
+		protected virtual void OnWindowClose()
+		{
+			rootVisualElement.Clear();
+			Instance = null;
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload -= BeforeAssemblyReload;
+			UnityEditor.AssemblyReloadEvents.afterAssemblyReload -= AfterAssemblyReload;
+		}
+
+		/// &ltsummary>
+		/// Called before assembly reload.
+		/// &lt/summary>
+		protected virtual void BeforeAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called during assembly reload.
+		/// &lt/summary>
+		protected virtual void DuringAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called after assembly reload.
+		/// &lt/summary>
+		protected virtual void AfterAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window disabled.
+		/// &lt/summary>
+		protected virtual void OnDisable()
+		{
+			Application.quitting -= HandleQuitting;
+		}
+
+		/// &ltsummary>
+		/// Called on window destroyed.
+		/// &lt/summary>
+		protected virtual void OnDestroy()
+		{
+			OnWindowClose();
+		}
+
+		/// &ltsummary>
+		/// Save unsaved changes.
+		/// &lt/summary>
+		public override void SaveChanges()
+		{
+			base.SaveChanges();
+		}
+
+		/// &ltsummary>
+		/// Discard unsaved changes.
+		/// &lt/summary>
+		public override void DiscardChanges()
+		{
+			base.DiscardChanges();
+		}
+
+		/// &ltsummary>
+		/// Called upon quitting Unity.
+		/// &lt/summary>
+		protected virtual void HandleQuitting()
+		{
+			if (hasUnsavedChanges) SaveChanges();
+		}
+
+		/// &ltsummary>
+		/// Create user interface.
+		/// &lt/summary>
+		protected virtual void LayoutUI()
+		{
+		}
+	}
+}							
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

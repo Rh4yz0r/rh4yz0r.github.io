@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: NodeEditorWindow.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">NodeEditorWindow.cs</h1>
+							
+							<pre>
+								<code>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Hephaestos.Extensions;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
+using Hephaestos.VisualElements;
+using UnityEngine.Serialization;
+using Column = Hephaestos.VisualElements.Column;
+using PopupWindow = UnityEditor.PopupWindow;
+
+namespace Hephaestos.Graph
+{
+	public class NodeEditorWindow : ExtendedEditorWindow
+	{
+		//Global variables
+		private string _currentNodeBlueprintName;
+		public string CurrentNodeBlueprintName
+		{
+			get => _currentNodeBlueprintName;
+			set
+			{
+				_currentNodeBlueprintName = value;
+				_loadedNodeBlueprintLabel.text = $"Current Node Blueprint: &ltb>&lti>{value}&ltb>&lti>";
+			}
+		}
+		
+		public string LoadedNodeBlueprintPath => $"{C_PATHS.SAVED_NODES_FOLDER_PATH}/{CurrentNodeBlueprintName}{C_PATHS.SAVE_FORMAT}";
+		
+		
+		//Private variables
+		public EditorNode EditorNode;
+		//public NodeBlueprint EditorNodeBlueprint;
+		private NodeBlueprint _assemblyReloadData;
+		
+		//Visual Elements
+		private GraphView _graphView;
+		
+		private Toolbar _toolbar;
+		private Label _loadedNodeBlueprintLabel;
+		private Button _loadNodeBlueprintButton;
+		private Button _saveNodeBlueprintButton;
+		private Button _saveNodeBlueprintAsButton;
+		private Button _clearNodeBlueprintButton;
+		
+		//private VisualElement _zoneListContainerParent;
+		private VisualElement _zoneListContainer;
+		public ZoneDefinitionElement InputZone;
+		public ZoneDefinitionElement OutputZone;
+		public ZoneDefinitionElement ExtensionZone;
+
+		//Events
+		public event Action OnNodeBlueprintLoaded;
+		public event Action OnNodeBlueprintSaved;
+		public event Action OnNodeBlueprintSavedAs;
+		public event Action OnNodeBlueprintCleared;
+		
+		
+		[MenuItem("Node System/Node Editor")]
+		public static void CreateGraphViewWindow()
+		{
+			CreateWindow&ltNodeEditorWindow>("Node Editor", "This node blueprint has unsaved changes. Would you like to save?");
+		}
+		
+		protected override void OnEnable()
+		{
+			GlobalNodeEditorValues.CreateInstance();
+			base.OnEnable();
+		}
+
+		protected override void OnWindowClose()
+		{
+			base.OnWindowClose();
+			OnNodeBlueprintLoaded = null;
+			OnNodeBlueprintSaved = null;
+			OnNodeBlueprintSavedAs = null;
+			OnNodeBlueprintCleared = null;
+			GlobalNodeEditorValues.DestroyInstance();
+		}
+		
+		protected override void BeforeAssemblyReload()
+		{
+			base.BeforeAssemblyReload();
+			_assemblyReloadData = this.GetNodeBlueprintData();
+			_assemblyReloadData.name = CurrentNodeBlueprintName;
+		}
+
+		protected override void DuringAssemblyReload()
+		{
+			base.DuringAssemblyReload();
+		}
+
+		protected override void AfterAssemblyReload()
+		{
+			GlobalNodeEditorValues.CreateInstance();
+			base.AfterAssemblyReload();
+			this.LoadNodeBlueprint(_assemblyReloadData);
+			_assemblyReloadData = null;
+		}
+
+		public override void SaveChanges()
+		{
+			base.SaveChanges();
+			SaveButtonClicked();
+		}
+
+		public override void DiscardChanges()
+		{
+			base.DiscardChanges();
+		}
+		
+		/// &ltsummary>
+		/// Called when load button is clicked.
+		/// &lt/summary>
+		private void LoadButtonClicked()
+		{
+			PopupWindow.Show(_loadNodeBlueprintButton.worldBound, new CLoadNodePopupContent(this, () =>
+			{
+				OnNodeBlueprintLoaded?.Invoke();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when save button is clicked.
+		/// &lt/summary>
+		private void SaveButtonClicked()
+		{
+			this.SaveNodeBlueprint(LoadedNodeBlueprintPath);
+			OnNodeBlueprintSaved?.Invoke();
+			SetUnsavedChanges(false);
+		}
+		
+		/// &ltsummary>
+		/// Called when save as button is clicked.
+		/// &lt/summary>
+		private void SaveAsButtonClicked()
+		{
+			PopupWindow.Show(_saveNodeBlueprintAsButton.worldBound, new CSaveNodeAsPopupContent(this, () =>
+			{
+				OnNodeBlueprintSavedAs?.Invoke();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when clear button is clicked.
+		/// &lt/summary>
+		private void ClearButtonClicked()
+		{
+			this.Clear();
+			OnNodeBlueprintCleared?.Invoke();
+			SetUnsavedChanges(true);
+		}
+
+		protected override void LayoutUI()
+		{
+			base.LayoutUI();
+			
+			//Create toolbar
+			LayoutToolbar();
+			
+			//Create zone definition lists
+			_zoneListContainer = new Column();
+			_zoneListContainer.BringToFront();
+			_zoneListContainer.style.backgroundColor = new StyleColor(new Color(0.2196f, 0.2196f, 0.2196f, 1));
+			_zoneListContainer.style.width = 210;
+			rootVisualElement.Add(_zoneListContainer);
+			
+			InitZoneLists();
+			
+			_zoneListContainer.Add(InputZone);
+			_zoneListContainer.Add(OutputZone);
+			_zoneListContainer.Add(ExtensionZone);
+			
+			//Create graph
+			LayoutGraphView();
+		}
+		
+		/// &ltsummary>
+		/// Layout toolbar user interface.
+		/// &lt/summary>
+		private void LayoutToolbar()
+		{
+			//Layout Toolbar
+			_toolbar = new Toolbar() { style = { paddingTop = 2, paddingBottom = 2, minHeight = 26 } };
+			rootVisualElement.Add(_toolbar);
+			
+			//Layout current graph Label
+			_loadedNodeBlueprintLabel = new Label { style = { alignSelf = Align.Center, marginRight = 10 } };
+			_toolbar.Add(_loadedNodeBlueprintLabel);
+			CurrentNodeBlueprintName = "New Node Blueprint";
+			
+			//Layout load Button
+			_loadNodeBlueprintButton = new Button { text = "Load" };
+			_toolbar.Add(_loadNodeBlueprintButton);
+			_loadNodeBlueprintButton.clicked += LoadButtonClicked;
+			
+			//Layout save Button
+			_saveNodeBlueprintButton = new Button { text = "Save" };
+			_toolbar.Add(_saveNodeBlueprintButton);
+			_saveNodeBlueprintButton.clicked += SaveButtonClicked;
+			
+			//Layout save as Button
+			_saveNodeBlueprintAsButton = new Button { text = "Save As" };
+			_toolbar.Add(_saveNodeBlueprintAsButton);
+			_saveNodeBlueprintAsButton.clicked += SaveAsButtonClicked;
+
+			//Layout clear Button
+			_clearNodeBlueprintButton = new Button { text = "Clear" };
+			_toolbar.Add(_clearNodeBlueprintButton);
+			_clearNodeBlueprintButton.clicked += ClearButtonClicked;
+		}
+		
+		/// &ltsummary>
+		/// Layout graph user interface.
+		/// &lt/summary>
+		private void LayoutGraphView()
+		{
+			_graphView = new GraphView() { name = "Node Example Graph" };
+			rootVisualElement.Add(_graphView);
+			_graphView.StretchToParentSize();
+			_graphView.SendToBack();
+			
+			EditorNode = new EditorNode().Create(CreateInstance&ltNodeBlueprint>(), _graphView, new Vector2(275, 75)) as EditorNode;
+		}
+		
+		/// &ltsummary>
+		/// Initialize zone definition lists.
+		/// &lt/summary>
+		private void InitZoneLists()
+		{
+			InputZone = new ZoneDefinitionElement("Input Zone");
+			OutputZone = new ZoneDefinitionElement("Output Zone");
+			ExtensionZone = new ZoneDefinitionElement("Extension Zone");
+			
+			InputZone.style.paddingTop = 5;
+			OutputZone.style.paddingTop = 10;
+			ExtensionZone.style.paddingTop = 10;
+			
+			InputZone.OnValueChangedEvent += () =>
+			{
+				EditorNode.GetBlueprint().inputZoneBlueprint = InputZone.ZoneBlueprint;
+				EditorNode.RefreshFields();
+				SetUnsavedChanges(true);
+			};
+			OutputZone.OnValueChangedEvent += () =>
+			{
+				EditorNode.GetBlueprint().outputZoneBlueprint = OutputZone.ZoneBlueprint;
+				EditorNode.RefreshFields();
+				SetUnsavedChanges(true);
+			};
+			ExtensionZone.OnValueChangedEvent += () =>
+			{
+				EditorNode.GetBlueprint().extensionZoneBlueprint = ExtensionZone.ZoneBlueprint;
+				EditorNode.RefreshFields();
+				SetUnsavedChanges(true);
+			};
+		}
+	}
+}			
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
