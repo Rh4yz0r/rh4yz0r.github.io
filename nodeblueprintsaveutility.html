@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Portfolio: NodeBlueprintSaveUtility.cs</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="title">Portfolio by Chris Huider</a>
+				<nav>
+					<ul>
+						<li><a href="index.html">Home</a></li>
+					</ul>
+				</nav>
+			</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+
+							<h1 class="major">NodeBlueprintSaveUtility.cs</h1>
+							
+							<pre>
+								<code>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Hephaestus.Graph_Creation_Toolbox
+{
+	public static class NodeBlueprintSaveUtility
+	{
+		#region Saving
+		/// &ltsummary>
+		/// Save Node Blueprint
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to save&lt/param>
+		public static void SaveNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			//Check if previous save exists.
+			bool saveExists = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeBlueprintWindow.LoadedNodeBlueprintPath);
+			
+			//Generate new blueprint to save.
+			NodeBlueprint newNodeBlueprint = nodeBlueprintWindow.GenerateNodeBlueprint();
+			
+			if (saveExists)
+			{
+				//Overwrite previous save.
+				var savedAsset = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeBlueprintWindow.LoadedNodeBlueprintPath);
+				savedAsset.PopulateFromOtherInstance(newNodeBlueprint);
+				EditorUtility.SetDirty(savedAsset);
+				AssetDatabase.SaveAssetIfDirty(savedAsset);
+			}
+			else
+			{
+				//Create new save.
+				AssetDatabase.CreateAsset(newNodeBlueprint, nodeBlueprintWindow.LoadedNodeBlueprintPath);
+			}
+		}
+
+		/// &ltsummary>
+		/// Generate a Node Blueprint from Node Blueprint Window
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to generate Blueprint from&lt/param>
+		/// &ltreturns>Generated Blueprint&lt/returns>
+		public static NodeBlueprint GenerateNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			//Make sure the node's blueprint matches up with the UI and get it.
+			nodeBlueprintWindow.SyncNodeBlueprint();
+			var currentNodeBlueprint = nodeBlueprintWindow.EditorNode.GetBlueprint();
+			
+			//Make new blueprint instance and populate it.
+			NodeBlueprint newNodeBlueprint = ScriptableObject.CreateInstance&ltNodeBlueprint>();
+			newNodeBlueprint.PopulateFromOtherInstance(currentNodeBlueprint);
+			newNodeBlueprint.name = nodeBlueprintWindow.CurrentNodeBlueprintName;
+			
+			return newNodeBlueprint;
+		}
+		
+		/// &ltsummary>
+		/// Save Blueprint as newName
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to save&lt/param>
+		/// &ltparam name="newName">Name to save as&lt/param>
+		public static void SaveNodeBlueprintAs(this NodeBlueprintWindow nodeBlueprintWindow, string newName)
+		{
+			//Check if save with 'newName' exists.
+			if (AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>($"{ExplorerPaths.SAVED_NODES_FOLDER_PATH}/{newName}{ExplorerPaths.SAVE_FORMAT}"))
+			{
+				//Open UI confirmation window.
+				if (!EditorUtility.DisplayDialog(
+						"Overwrite File?",
+						$"Another node with the name '{newName}' already exists. Saving now will result in overwriting that file.", 
+						"Save anyway", 
+						"Cancel"))
+				{
+					//Canceled save.
+					return;
+				}
+			}
+			
+			//Proceed to save.
+			nodeBlueprintWindow.CurrentNodeBlueprintName = newName;
+			SaveNodeBlueprint(nodeBlueprintWindow);
+		}
+
+		#endregion
+
+		#region Loading
+		/// &ltsummary>
+		/// Load User Interface and Editor Node based on Blueprint saved at nodeDataPath
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to load User Interface and Editor Node&lt/param>
+		/// &ltparam name="nodeDataPath">Path where Blueprint to load is saved&lt/param>
+		public static void LoadNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow, string nodeDataPath)
+		{
+			NodeBlueprint loadedNodeBlueprint = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeDataPath);
+			LoadNodeBlueprint(nodeBlueprintWindow, loadedNodeBlueprint);
+		}
+		
+		/// &ltsummary>
+		/// Load User Interface and Editor Node based on Blueprint.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to load User Interface and Editor Node&lt/param>
+		/// &ltparam name="nodeBlueprint">Blueprint to load&lt/param>
+		public static void LoadNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow, NodeBlueprint nodeBlueprint)
+		{
+			nodeBlueprintWindow.ClearWithoutNotify();
+			
+			nodeBlueprintWindow.InputZone.Load(nodeBlueprint.inputZoneBlueprint);
+			nodeBlueprintWindow.OutputZone.Load(nodeBlueprint.outputZoneBlueprint);
+			nodeBlueprintWindow.ExtensionZone.Load(nodeBlueprint.extensionZoneBlueprint);
+			
+			nodeBlueprintWindow.CurrentNodeBlueprintName = nodeBlueprint.name;
+			
+		   nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+
+		#endregion
+
+		#region Clearing
+		/// &ltsummary>
+		/// Clear window and call change events.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to clear&lt/param>
+		public static void Clear(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			nodeBlueprintWindow.InputZone.Clear();
+			nodeBlueprintWindow.OutputZone.Clear();
+			nodeBlueprintWindow.ExtensionZone.Clear();
+			nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+		
+		/// &ltsummary>
+		/// Clear window without calling change events.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to clear&lt/param>
+		public static void ClearWithoutNotify(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			nodeBlueprintWindow.InputZone.ClearWithoutNotify();
+			nodeBlueprintWindow.OutputZone.ClearWithoutNotify();
+			nodeBlueprintWindow.ExtensionZone.ClearWithoutNotify();
+			nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+
+		#endregion
+	}
+}
+								</code>
+							  </pre>
+
+			</div>
+
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

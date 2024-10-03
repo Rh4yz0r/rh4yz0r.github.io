@@ -37,22 +37,17 @@
 								<code>
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hephaestos.Extensions;
+using Hephaestus.Tools;
+using Hephaestus.Tools.Visual_Elements;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Hephaestos.VisualElements;
-using UnityEngine.Serialization;
-using Column = Hephaestos.VisualElements.Column;
 using PopupWindow = UnityEditor.PopupWindow;
 
-namespace Hephaestos.Graph
+namespace Hephaestus.Graph_Creation_Toolbox
 {
-	public class NodeEditorWindow : ExtendedEditorWindow
+	public class NodeBlueprintWindow : AdvancedEditorWindow
 	{
 		//Global variables
 		private string _currentNodeBlueprintName;
@@ -66,7 +61,11 @@ namespace Hephaestos.Graph
 			}
 		}
 		
-		public string LoadedNodeBlueprintPath => $"{C_PATHS.SAVED_NODES_FOLDER_PATH}/{CurrentNodeBlueprintName}{C_PATHS.SAVE_FORMAT}";
+		public string LoadedNodeBlueprintPath => $"{ExplorerPaths.SAVED_NODES_FOLDER_PATH}/{CurrentNodeBlueprintName}{ExplorerPaths.SAVE_FORMAT}";
+		
+		//Undo and redo stacks
+		public Stack Changes = new Stack();
+		public Stack UndidChanges = new Stack();
 		
 		
 		//Private variables
@@ -83,30 +82,33 @@ namespace Hephaestos.Graph
 		private Button _saveNodeBlueprintAsButton;
 		private Button _clearNodeBlueprintButton;
 		
+		private Button _undoButton;
+		private Button _redoButton;
+		
 		private VisualElement _zoneListContainer;
-		public ZoneDefinitionElement InputZone;
-		public ZoneDefinitionElement OutputZone;
-		public ZoneDefinitionElement ExtensionZone;
-
+		public ZoneBlueprintElement InputZone;
+		public ZoneBlueprintElement OutputZone;
+		public ZoneBlueprintElement ExtensionZone;
+		
 		//Events
 		public event Action OnNodeBlueprintLoaded;
 		public event Action OnNodeBlueprintSaved;
 		public event Action OnNodeBlueprintSavedAs;
 		public event Action OnNodeBlueprintCleared;
 		
-		
-		[MenuItem("Node System/Node Editor")]
+		#region Window
+		[MenuItem("Graph Creation Toolbox/Node Blueprinting")]
 		public static void CreateGraphViewWindow()
 		{
-			CreateWindow&ltNodeEditorWindow>("Node Editor", "This node blueprint has unsaved changes. Would you like to save?");
+			CreateWindow&ltNodeBlueprintWindow>("Node Blueprinting", "This node blueprint has unsaved changes. Would you like to save?");
 		}
 		
 		protected override void OnEnable()
 		{
-			GlobalNodeEditorValues.CreateInstance();
+			ConstantValues.CreateInstance();
 			base.OnEnable();
 		}
-
+		
 		protected override void OnWindowClose()
 		{
 			base.OnWindowClose();
@@ -114,84 +116,39 @@ namespace Hephaestos.Graph
 			OnNodeBlueprintSaved = null;
 			OnNodeBlueprintSavedAs = null;
 			OnNodeBlueprintCleared = null;
-			GlobalNodeEditorValues.DestroyInstance();
+			ConstantValues.DestroyInstance();
 		}
 		
 		protected override void BeforeAssemblyReload()
 		{
 			base.BeforeAssemblyReload();
-			_assemblyReloadData = this.GetNodeBlueprintData();
-			_assemblyReloadData.name = CurrentNodeBlueprintName;
+			_assemblyReloadData = this.GenerateNodeBlueprint();
 		}
-
+		
 		protected override void DuringAssemblyReload()
 		{
 			base.DuringAssemblyReload();
 		}
-
+		
 		protected override void AfterAssemblyReload()
 		{
-			GlobalNodeEditorValues.CreateInstance();
+			ConstantValues.CreateInstance();
 			base.AfterAssemblyReload();
 			this.LoadNodeBlueprint(_assemblyReloadData);
 			_assemblyReloadData = null;
 		}
-
+		
 		public override void SaveChanges()
 		{
 			base.SaveChanges();
 			SaveButtonClicked();
 		}
-
+		
 		public override void DiscardChanges()
 		{
 			base.DiscardChanges();
 		}
 		
-		/// &ltsummary>
-		/// Called when load button is clicked.
-		/// &lt/summary>
-		private void LoadButtonClicked()
-		{
-			PopupWindow.Show(_loadNodeBlueprintButton.worldBound, new CLoadNodePopupContent(this, () =>
-			{
-				OnNodeBlueprintLoaded?.Invoke();
-				SetUnsavedChanges(false);
-			}));
-		}
-		
-		/// &ltsummary>
-		/// Called when save button is clicked.
-		/// &lt/summary>
-		private void SaveButtonClicked()
-		{
-			this.SaveNodeBlueprint(LoadedNodeBlueprintPath);
-			OnNodeBlueprintSaved?.Invoke();
-			SetUnsavedChanges(false);
-		}
-		
-		/// &ltsummary>
-		/// Called when save as button is clicked.
-		/// &lt/summary>
-		private void SaveAsButtonClicked()
-		{
-			PopupWindow.Show(_saveNodeBlueprintAsButton.worldBound, new CSaveNodeAsPopupContent(this, () =>
-			{
-				OnNodeBlueprintSavedAs?.Invoke();
-				SetUnsavedChanges(false);
-			}));
-		}
-		
-		/// &ltsummary>
-		/// Called when clear button is clicked.
-		/// &lt/summary>
-		private void ClearButtonClicked()
-		{
-			this.Clear();
-			OnNodeBlueprintCleared?.Invoke();
-			SetUnsavedChanges(true);
-		}
-
 		protected override void LayoutUI()
 		{
 			base.LayoutUI();
@@ -200,7 +157,7 @@ namespace Hephaestos.Graph
 			LayoutToolbar();
 			
 			//Create zone definition lists
-			_zoneListContainer = new Column();
+			_zoneListContainer = new ColumnElement();
 			_zoneListContainer.BringToFront();
 			_zoneListContainer.style.backgroundColor = new StyleColor(new Color(0.2196f, 0.2196f, 0.2196f, 1));
 			_zoneListContainer.style.width = 210;
@@ -215,7 +172,9 @@ namespace Hephaestos.Graph
 			//Create graph
 			LayoutGraphView();
 		}
+		#endregion
 		
+		#region Toolbar
 		/// &ltsummary>
 		/// Layout toolbar user interface.
 		/// &lt/summary>
@@ -244,13 +203,100 @@ namespace Hephaestos.Graph
 			_saveNodeBlueprintAsButton = new Button { text = "Save As" };
 			_toolbar.Add(_saveNodeBlueprintAsButton);
 			_saveNodeBlueprintAsButton.clicked += SaveAsButtonClicked;
-
+		
 			//Layout clear Button
 			_clearNodeBlueprintButton = new Button { text = "Clear" };
 			_toolbar.Add(_clearNodeBlueprintButton);
 			_clearNodeBlueprintButton.clicked += ClearButtonClicked;
+			
+			//Undo change Button
+			_undoButton = new Button { text = "Undo" };
+			_toolbar.Add(_undoButton);
+			_undoButton.clicked += UndoButtonClicked;
+			
+			//Redo change Button
+			_redoButton = new Button { text = "Redo" };
+			_toolbar.Add(_redoButton);
+			_redoButton.clicked += RedoButtonClicked;
 		}
 		
+		/// &ltsummary>
+		/// Called when load button is clicked.
+		/// &lt/summary>
+		private void LoadButtonClicked()
+		{
+			PopupWindow.Show(_loadNodeBlueprintButton.worldBound, new LoadNodePopupContent(this, () =>
+			{
+				OnNodeBlueprintLoaded?.Invoke();
+				Changes.Clear();
+				UndidChanges.Clear();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when save button is clicked.
+		/// &lt/summary>
+		private void SaveButtonClicked()
+		{
+			this.SaveNodeBlueprint();
+			OnNodeBlueprintSaved?.Invoke();
+			SetUnsavedChanges(false);
+		}
+		
+		/// &ltsummary>
+		/// Called when save as button is clicked.
+		/// &lt/summary>
+		private void SaveAsButtonClicked()
+		{
+			PopupWindow.Show(_saveNodeBlueprintAsButton.worldBound, new SaveNodeAsPopupContent(this, () =>
+			{
+				OnNodeBlueprintSavedAs?.Invoke();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when clear button is clicked.
+		/// &lt/summary>
+		private void ClearButtonClicked()
+		{
+			var inputZoneClearedElements = InputZone.GetElements();
+			var outputZoneClearedElements = OutputZone.GetElements();
+			var extensionZoneClearedElements = ExtensionZone.GetElements();
+
+			var change = new BlueprintingWindowClearedChange(InputZone, OutputZone, ExtensionZone,
+				inputZoneClearedElements, outputZoneClearedElements, extensionZoneClearedElements);
+			
+			this.Clear();
+			OnNodeBlueprintCleared?.Invoke();
+			ZoneChange(change);
+		}
+
+		/// &ltsummary>
+		/// Called when undo button is clicked.
+		/// &lt/summary>
+		private void UndoButtonClicked()
+		{
+			var change = Changes.Pop() as IWindowChange;
+			change.UndoChange();
+			UndidChanges.Push(change);
+			SyncNodeBlueprint();
+		}
+
+		/// &ltsummary>
+		/// Called when redo button is clicked.
+		/// &lt/summary>
+		private void RedoButtonClicked()
+		{
+			var change = UndidChanges.Pop() as IWindowChange;
+			change.RedoChange();
+			Changes.Push(change);
+			SyncNodeBlueprint();
+		}
+		#endregion
+		
+		#region GraphView
 		/// &ltsummary>
 		/// Layout graph user interface.
 		/// &lt/summary>
@@ -263,41 +309,64 @@ namespace Hephaestos.Graph
 			
 			EditorNode = new EditorNode().Create(CreateInstance&ltNodeBlueprint>(), _graphView, new Vector2(275, 75)) as EditorNode;
 		}
+		#endregion
 		
+		#region User Interface
 		/// &ltsummary>
 		/// Initialize zone definition lists.
 		/// &lt/summary>
 		private void InitZoneLists()
 		{
-			InputZone = new ZoneDefinitionElement("Input Zone");
-			OutputZone = new ZoneDefinitionElement("Output Zone");
-			ExtensionZone = new ZoneDefinitionElement("Extension Zone");
+			InputZone = new ZoneBlueprintElement("Input Zone");
+			OutputZone = new ZoneBlueprintElement("Output Zone");
+			ExtensionZone = new ZoneBlueprintElement("Extension Zone");
 			
 			InputZone.style.paddingTop = 5;
 			OutputZone.style.paddingTop = 10;
 			ExtensionZone.style.paddingTop = 10;
 			
-			InputZone.OnValueChangedEvent += () =>
-			{
+			InputZone.OnValueChangedEvent += change =>
+			{                                                                                                                  
 				EditorNode.GetBlueprint().inputZoneBlueprint = InputZone.ZoneBlueprint;
-				EditorNode.RefreshFields();
-				SetUnsavedChanges(true);
+				ZoneChange(change);
 			};
-			OutputZone.OnValueChangedEvent += () =>
+			OutputZone.OnValueChangedEvent += change =>
 			{
 				EditorNode.GetBlueprint().outputZoneBlueprint = OutputZone.ZoneBlueprint;
-				EditorNode.RefreshFields();
-				SetUnsavedChanges(true);
+				ZoneChange(change);
 			};
-			ExtensionZone.OnValueChangedEvent += () =>
+			ExtensionZone.OnValueChangedEvent += change =>
 			{
 				EditorNode.GetBlueprint().extensionZoneBlueprint = ExtensionZone.ZoneBlueprint;
-				EditorNode.RefreshFields();
-				SetUnsavedChanges(true);
+				ZoneChange(change);
 			};
 		}
+
+		/// &ltsummary>
+		/// Handle change in Node's zone.
+		/// &lt/summary>
+		/// &ltparam name="change">&lt/param>
+		private void ZoneChange(IWindowChange change)
+		{
+			EditorNode.RefreshFields();
+			Changes.Push(change);
+			UndidChanges.Clear();
+			SetUnsavedChanges(true);
+		}
+
+		/// &ltsummary>
+		/// Sync Editor Node with Blueprint defined in UI.
+		/// &lt/summary>
+		public void SyncNodeBlueprint()
+		{
+			EditorNode.GetBlueprint().inputZoneBlueprint = InputZone.ZoneBlueprint;
+			EditorNode.GetBlueprint().outputZoneBlueprint = OutputZone.ZoneBlueprint;
+			EditorNode.GetBlueprint().extensionZoneBlueprint = ExtensionZone.ZoneBlueprint;
+			EditorNode.RefreshFields();
+		}
+		#endregion
 	}
-}			
+}
 								</code>
 							  </pre>
 
