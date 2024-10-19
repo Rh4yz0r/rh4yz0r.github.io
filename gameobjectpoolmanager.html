@@ -15,7 +15,7 @@
 	<body class="is-preload">
 
 		<!-- Header -->
-			<header id="header">
+			<header id="header2">
 				<a href="index.html" class="title">Portfolio by Chris Huider</a>
 				<nav>
 					<ul>
@@ -173,7 +173,8 @@ public class GameObjectPoolManager : MonoBehaviour
     public GameObjectPool GetPoolFromName(string gameObjectPoolName)
     {
         _poolDict.TryGetValue(gameObjectPoolName, out var gameObjectPool);
-        if (_editorLogs && gameObjectPool == null) Debug.LogError($"Couldn't find pool with name: {gameObjectPoolName}");
+        if (_editorLogs && gameObjectPool == null) 
+            Debug.LogError($"Couldn't find pool with name: {gameObjectPoolName}");
         return gameObjectPool;
     }
 
@@ -189,7 +190,8 @@ public class GameObjectPoolManager : MonoBehaviour
         try { go = gameObjectPool.PooledGameObjects.Dequeue(); }
         catch
         {
-            if (_editorLogs) Debug.LogWarning($"Tried to get GameObject from {gameObjectPool.Name}, but pool was empty. Doubling pool size.");
+            if (_editorLogs) 
+                Debug.LogWarning($"Tried to get GameObject from {gameObjectPool.Name}, but pool was empty. Doubling pool size.");
             DoublePoolSize(gameObjectPool);
             go = gameObjectPool.PooledGameObjects.Dequeue();
         }
@@ -252,15 +254,6 @@ public class GameObjectPoolManager : MonoBehaviour
 							  </pre>
 
 			</div>
-
-		<!-- Footer -->
-			<footer id="footer" class="wrapper alt">
-				<div class="inner">
-					<ul class="menu">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</div>
-			</footer>
 
 		<!-- Scripts -->
 			<script src="assets/js/jquery.min.js"></script>

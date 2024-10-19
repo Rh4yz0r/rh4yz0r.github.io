@@ -5,16 +5,22 @@
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html>
-	<head>
-		<title>Portfolio: Terrain Generation</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
 
-		<!-- Header -->
+<!-- Browser Tab Info -->
+<head>
+	<title>Portfolio: Terrain Generation</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" />
+	</noscript>
+</head>
+
+<!-- Body -->
+<body class="is-preload" style="background-image: url(images/Backgrounds/Terrain_Generation_Page_Background_Dark.png); background-size: contain;">
+
+	<!-- Header -->
 	<header id="header2">
 		<a href="index.html" class="title">Portfolio by Chris Huider</a>
 		<nav>
@@ -24,87 +30,92 @@
 		</nav>
 	</header>
 
-	<!-- Sidebar -->
-	<section id="sidebar2">
-		<div class="inner">
-			<h3 class="major">Engine</h3>
-			<ul>
-				<li>Unity3D</li>
-			</ul>
-			<h3 class="major">Language</h3>
-			<ul>
-				<li>C#</li>
-			</ul>
-			<h3 class="major">Contribution</h3>
-			<ul>
-				<li>Everything</li>
-			</ul>
-			<h3 class="major">Team</h3>
-			<ul>
-				<li>Me</li>
-			</ul>
-			<h3 class="major">Links</h3>
-			<ul class="icons">
-				
-				<li><a href="https://github.com/Rh4yz0r/Procedural-Environment" class="icon brands fa-github"><span
-					class="label">GitHub</span></a></li>
-				<li><a href="https://summit-2223-sem2.game-lab.nl/2023/04/11/procedural-environment/" class="fab fa-wordpress"><span
-							class="label">Itch.io</span></a></li>
-							
-			</ul>
-		</div>
-	</section>
-
 	<!-- Wrapper -->
 	<div id="wrapper">
 
 		<!-- Main -->
-		<section id="main" class="wrapper">
+		<section id="main" class="wrapper center style2">
 			<div class="inner">
 
 				<h1 class="major">Terrain Generation</h1>
+
+				<div class="split2">
+					<section>
+						<h3 class="major">Year made</h3>
+							<ul>
+								<li>2023</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Software</h3>
+							<ul>
+								<li>Unity3D</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Language</h3>
+							<ul>
+								<li>C#</li>
+							</ul>
+					</section>
+				</div>
+				<div class="split2">
+					<section>
+						<h3 class="major">Project Duration</h3>
+							<ul>
+								<li>1 Month</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Team</h3>
+							<ul>
+								<li>Solo Project</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Links</h3>
+							<ul class="icons">
+								<ul>
+									<li><a href="https://summit-2223-sem2.game-lab.nl/2023/04/11/procedural-environment/" class="icon brands fa-wordpress"><span class="label">WordPress</span></a></li>
+									<li><a href="https://github.com/Rh4yz0r/Procedural-Environment" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</ul>
+					</section>
+				</div>
+
+				<h1 class="major"></h1>
 				
-				<span class="image fit"><img src="images/Terrain_Generation_Banner.gif" alt="" /></span>
+				<video controls class="image fit">
+					<source src="videos/Terrain_Generation_Showcase.mp4" type="video/mp4" />
+				</video>
 
 				<h1 class="major"></h1>
 
-				<p>During the third year of my Bachelor in Game Development I researched the subject of terrain generation. 
-					At first I wanted to focus on randomly generating terrain, but I shifted focus after realising the process of generating terrain also included some other interesting subjects. 
-					This project ended up including work on performance, data storage, in-editor scripting, texture mapping to store data, mesh generation, shaders and more. 
+				<h2>Description</h2>
+
+				<p>In the third year of my Bachelor at the <a href="https://studiegids.hva.nl/hbo-ict-gd-vt/2022-2023">AUAS</a> I researched terrain generation.<br>
+					This led me to create an algorithm for generating terrain using only a height map texture. The terrain features textures based on terrain's slope and
+					procedurally generated grass and trees. (You can find the entire process and more on the <a href="https://summit-2223-sem2.game-lab.nl/2023/04/11/procedural-environment/">wordpress website</a>.)
 				</p>
-				<p>You can read a lot more about the entire process on <a href="https://summit-2223-sem2.game-lab.nl/2023/04/11/procedural-environment/">wordpress</a>. I describe the process in detail and go into every stuggle I ran into and how I handled it. 
-					You can also take a look at the project, which you can find on my <a href="https://github.com/Rh4yz0r/Procedural-Environment">github</a>.
-				</p>
+
+				<h2>What did I learn?</h2>
+
+				<li>Improved my knowledge of how Unity stores data on meshes.</li>
+				<li>Improved my knowledge of how to make meshes using an algorithm.</li>
+				<li>Improved my knowledge on scriptable object back-end.</li>
+				<li>Learned how to store data as a child of a scriptable object.</li>
+				<li>Learned how to generate and modify textures using an algorithm.</li>
+				<li>Learned how to make and blend triplanar textures using an algorithm.</li>
+				<p></p>
 
 				<h1 class="major"></h1>
 
 				<h2>More media</h2>
 
 				<span class="image fit"><img src="images/Terrain_Generation-Chunk.png" alt="" /></span>
-				<video controls class="image fit">
-					<source src="videos/Terrain_Generation-Scenic_2.mp4" type="video/mp4" />
-				</video>
-				<video controls class="image fit">
-					<source src="videos/Terrain_Generation-Scenic_3.mp4" type="video/mp4" />
-				</video>
-				<video controls class="image fit">
-					<source src="videos/Terrain_Generation-Scenic_4.mp4" type="video/mp4" />
-				</video>
-				<video controls class="image fit">
-					<source src="videos/Terrain_Generation-Scenic_5.mp4" type="video/mp4" />
-				</video>
+				<span class="image fit"><img src="images/Terrain_Generation_Banner.gif" alt="" /></span>
 			</div>
 		</section>
-
-		<!-- Footer -->
-		<footer id="footer" class="wrapper style1-alt">
-			<div class="inner">
-				<ul class="menu">
-					<li>&copy; Untitled. All rights reserved.</li>
-					<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-				</ul>
-			</div>
-		</footer>
 
 		<!-- Scripts -->
 			<script src="assets/js/jquery.min.js"></script>
