@@ -15,7 +15,7 @@
 	<body class="is-preload">
 
 		<!-- Header -->
-			<header id="header">
+			<header id="header2">
 				<a href="index.html" class="title">Portfolio by Chris Huider</a>
 				<nav>
 					<ul>
@@ -45,9 +45,12 @@ using UnityEngine;
  Description:
  
  This script manages all the audio in the game.
- You can create Sound items in the inspector list, set the AudioClips, priority, volume, etc.
- It works kind off like the GameObjectPoolManager.cs script, it also needs an instance of that script to work.
- The GameObjectPoolManager houses a pool of AudioPlayer GameObjects, which are used to play sounds (this is to reduce clipping and cutting).
+ You can create Sound items in the inspector list, set the AudioClips, 
+ priority, volume, etc.
+ It works kind off like the GameObjectPoolManager.cs script, 
+ it also needs an instance of that script to work.
+ The GameObjectPoolManager houses a pool of AudioPlayer GameObjects, 
+ which are used to play sounds (this is to reduce clipping and cutting).
  You can PlaySound through a name or reference.
  The AudioPlayer will be automatically returned to the pool once finished playing.
  You can also PlayLooped, which will keep playing until you tell it to StopLooped.
@@ -192,7 +195,10 @@ public class AudioManager : MonoBehaviour
 			{
 				if(loopingSounds[j].clip == sound.AudioClip[i])
 				{
-					GameObjectPoolManager.Instance.ReturnGameObjectToPool("AudioSources", loopingSounds[j].gameObject);
+					GameObjectPoolManager.Instance.ReturnGameObjectToPool(
+						"AudioSources", 
+						loopingSounds[j].gameObject
+						);
 					loopingSounds.Remove(loopingSounds[j]);
 					return;
 				}
@@ -264,15 +270,6 @@ public class AudioManager : MonoBehaviour
 							  </pre>
 
 			</div>
-
-		<!-- Footer -->
-			<footer id="footer" class="wrapper alt">
-				<div class="inner">
-					<ul class="menu">
-						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
-				</div>
-			</footer>
 
 		<!-- Scripts -->
 			<script src="assets/js/jquery.min.js"></script>

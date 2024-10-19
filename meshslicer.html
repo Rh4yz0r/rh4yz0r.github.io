@@ -5,16 +5,22 @@
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 -->
 <html>
-	<head>
-		<title>Portfolio: KLM Mesh Slicer</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body class="is-preload">
 
-		<!-- Header -->
+<!-- Browser Tab Info -->
+<head>
+	<title>Portfolio: Mesh Slicer</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" />
+	</noscript>
+</head>
+
+<!-- Body -->
+<body class="is-preload" style="background-image: url(); background-size: contain;">
+
+	<!-- Header -->
 	<header id="header2">
 		<a href="index.html" class="title">Portfolio by Chris Huider</a>
 		<nav>
@@ -25,7 +31,7 @@
 	</header>
 
 	<!-- Sidebar -->
-	<section id="sidebar2">
+	<!-- <section id="sidebar2">
 		<div class="inner">
 			<h3 class="major">Engine</h3>
 			<ul>
@@ -50,35 +56,99 @@
 				</ul>
 			</ul>
 		</div>
-	</section>
+	</section> -->
 
 	<!-- Wrapper -->
 	<div id="wrapper">
 
 		<!-- Main -->
-		<section id="main" class="wrapper">
+		<section id="main" class="wrapper center style2">
 			<div class="inner">
 
-				<h1 class="major">KLM Mesh Slicer</h1>
+				<h1 class="major">Mesh Slicer</h1>
 
-				<span class="image fit"><img src="images/pic04.jpg" alt="" /></span>
-
-				<p>Banner image coming soon!</p>
+				<div class="split2">
+					<section>
+						<h3 class="major">Year made</h3>
+							<ul>
+								<li>2022</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Software</h3>
+							<ul>
+								<li>Unity3D</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Language</h3>
+							<ul>
+								<li>C#</li>
+							</ul>
+					</section>
+				</div>
+				<div class="split2">
+					<section>
+						<h3 class="major">Project Duration</h3>
+							<ul>
+								<li>1 Month</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Team</h3>
+							<ul>
+								<li>Solo Project</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Links</h3>
+							<ul class="icons">
+								<ul>
+									<li>No links available</li>
+								</ul>
+							</ul>
+					</section>
+				</div>
 
 				<h1 class="major"></h1>
 
-				<p>During my internship at the KLM I was tasked with making a VR mesh slicer. The objective was to be able to slice objects with a sword. 
+				<video controls class="image fit">
+					<source src="videos/Mesh_Slicer_Showcase.mp4" type="video/mp4" />
+				</video>
+
+				<h1 class="major"></h1>
+
+				<h2>Description</h2>
+
+				<p>In the third year of my Bachelor at the <a href="https://studiegids.hva.nl/hbo-ict-gd-vt/2022-2023">AUAS</a> I interned at the 
+					<a href="https://www.linkedin.com/in/klm-xr-center-of-excellence/">KLM XR Center of Excellence</a>. 
+					During this internship I made the functionality for, how I can best describe it, VR fruit ninja. To achieve this, I created an algorithm which
+					can split a single mesh into two meshes using a single plane or multiple connected planes.
+				</p>
+
+				<h2>What did I learn?</h2>
+
+				<li>Learned how Unity stores data on meshes.</li>
+				<li>Learned how to make meshes using an algorithm.</li>
+				<li>Learned how to use 3D debugging tools.</li>
+				<li>Improved my debugging skills.</li>
+				<li>Improved my 3D math skills.</li>
+				<p></p>
+
+				<!-- <p>During my internship at the KLM I was tasked with making a VR mesh slicer. The objective was to be able to slice objects with a sword. 
 					To make this work, I had to do a lot of research into mesh creation, editing and how Unity stores its meshs' data. 
 					Luckily I was already somewhat familiair with this subject, due to having experience with 3D modelling, so I quickly got started. 
 				</p>
+
 				<p>I started out trying to map out every edge and vertex in the mesh using visible rays and dots. 
 					I also needed something I would slice the mesh with, so the solution I came up with was to track the movement of the sword, and make a mesh/plane out of it's trajectory.
 					Now that I had a visual representation of where the mesh would need to be cut and I could take a look at which edges and triangles would be intersected. 
 					I wrote an algorithm to detect which edges would be intersected and gave them a different color. You can find an example of this in the videos below. 
 					Now that I knew where the cut would be, all that was left to do was create new vertices, edges and triangles at the intersections, separate them into two meshes and voila.
 				</p>
+
 				<p>Now ofcourse it all went with a little more difficulty, but in hindsight, it's a very interesting but easy to understand principle.
-				</p>
+				</p> -->
 
 				<h1 class="major"></h1>
 
@@ -90,19 +160,8 @@
 				<video controls class="image fit">
 					<source src="videos/KLM_Mesh_Slicer-Intersections_Test_2.mp4" type="video/mp4" />
 				</video>
-				<!--<span class="image fit"><img src="images/Elemental_Dude_Screenshot_1.png" alt="" /></span>-->
 			</div>
 		</section>
-
-		<!-- Footer -->
-		<footer id="footer" class="wrapper style1-alt">
-			<div class="inner">
-				<ul class="menu">
-					<li>&copy; Untitled. All rights reserved.</li>
-					<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-				</ul>
-			</div>
-		</footer>
 
 		<!-- Scripts -->
 			<script src="assets/js/jquery.min.js"></script>
