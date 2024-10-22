@@ -3094,7 +3094,11 @@ input, select, textarea {
 		.split2.dark > section > h4,
 		.split2.dark > section > h5,
 		.split2.dark > section > h6 {
-			color: var(--primary-alt-color);
+			color: var(--primary-alt-color) !important;
+		}
+
+		.split2.dark > section > p {
+			color: var(--secondary-alt-color);
 		}
 
 		.split2 > * {
