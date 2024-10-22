@@ -1,0 +1,867 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<!-- Browser Tab Info -->
+<head>
+	<title>Portfolio: Visual Scripting Creator</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.css" rel="stylesheet" />
+</head>
+
+<!-- Body -->
+<body class="is-preload">
+
+	<!-- Header -->
+	<header id="header2">
+		<a href="index.html" class="title">Portfolio by Chris Huider</a>
+		<nav>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<!-- Wrapper -->
+	<div id="wrapper" style="background-image: url(); background-size: contain;">
+
+		<!-- Main -->
+		<section id="main" class="wrapper center style2">
+			<div class="inner">
+
+				<h1 class="major">Visual Scripting Creator</h1>
+
+				<div class="split2">
+					<section>
+						<h3 class="major">Year made</h3>
+							<ul>
+								<li>2023-2024</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Software</h3>
+							<ul>
+								<li>Unity3D</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Language</h3>
+							<ul>
+								<li>C#</li>
+							</ul>
+					</section>
+				</div>
+				<div class="split2">
+					<section>
+						<h3 class="major">Project Duration</h3>
+							<ul>
+								<li>22 Months</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Team</h3>
+							<ul>
+								<li>Solo project</li>
+							</ul>
+					</section>
+					<section>
+						<h3 class="major">Links</h3>
+							<ul class="icons">
+								<ul>
+									<li>No links available</li>
+								</ul>
+							</ul>
+					</section>
+				</div>
+
+				<h1 class="major"></h1>
+
+				<span class="image fit"><img src="images/Visual_Scripting_Creator/Banner.png" alt="" /></span>
+				<p style="font-style: italic;">WORK IN PROGRESS SCREENSHOT</p>
+
+				<h1 class="major"></h1>
+
+				<h2>Description</h2>
+
+				<p>After my internship at the <a href="https://www.linkedin.com/in/klm-xr-center-of-excellence/">KLM XR Center of Excellence</a> I wanted to 
+					make an improved 'Macadamia', so I did. It's still a work in progress but dispite that, I'd still like to show it.<br>
+					The 'Visual Scripting Creator' is a set of tools to create your own visual scripting tool. You can create the nodes for the node system 
+					yourself, which allows you to create any node system you want. You can also create scripts for each node and adjust or create your own 
+					graph manager, which will enable you to manage your graphs any way you want.
+				</p>
+
+				<h2>What did I learn?</h2>
+
+				<li>Learned how Unity's assembly reloads work.</li>
+				<li>Learned how to use USS (Unity Style Sheet).</li>
+				<li>Learned how to write, read and use json files.</li>
+				<li>Learned the basics of how Unity's serialization works.</li>
+				<li>Improved my knowledge of the positives and negatives of using scriptable objects.</li>
+				<li>Improved my knowledge of Unity's built in systems.</li>
+				<li>Improved my knowledge of user experience in relation to developer tools.</li>
+				<p></p>
+
+				<h2>Additional Info</h2>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Advanced Editor Window
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								The advanced editor window script is the parent script for every editor window in this tool set. It gives the editor window 
+								some extra functionality and enables data reloading after assembly reloads.
+							</p>
+
+							<p>
+								You can find the full AdvancedEditorWindow.cs script below.
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Hephaestus.Tools
+{
+	public class AdvancedEditorWindow : EditorWindow
+	{
+		#region Singleton
+
+		public static AdvancedEditorWindow Instance { get; private set; }
+
+		private void InitSingleton()
+		{
+			if (Instance != null && Instance != this)
+			{
+				Destroy(this);
+			}
+			else
+			{
+				Instance = this;
+			}
+		}
+
+		#endregion
+
+		//Private variables
+		private bool _initialized;
+
+		//Overriding protected value to public
+		public void SetUnsavedChanges(bool value)
+		{
+			hasUnsavedChanges = value;
+		}
+
+		/// &ltsummary>
+		/// Create a new editor window of type TWindowType
+		/// &lt/summary>
+		/// &ltparam name="title">Window name.&lt/param>
+		/// &ltparam name="saveChangesMessage">Popup message when editor window is closed with unsaved changes.&lt/param>
+		/// &lttypeparam name="TWindowType">Window type (Child type of ExtendedEditorWindow).&lt/typeparam>
+		protected static void CreateWindow&ltTWindowType>(string title,
+			string saveChangesMessage = "This window has unsaved changes. Would you like to save?")
+			where TWindowType : AdvancedEditorWindow
+		{
+			var window = GetWindow&ltTWindowType>();
+			window.titleContent = new GUIContent(title);
+			window.OnWindowOpen();
+			window.saveChangesMessage = saveChangesMessage;
+		}
+		
+		/// &ltsummary>
+		/// Called on window loaded.
+		/// &lt/summary>
+		protected virtual void OnEnable()
+		{
+			LayoutUI();
+
+			Application.quitting += HandleQuitting;
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += BeforeAssemblyReload;
+			UnityEditor.AssemblyReloadEvents.afterAssemblyReload += AfterAssemblyReload;
+			if (_initialized) DuringAssemblyReload();
+
+			if (!_initialized)
+			{
+				InitSingleton();
+				Initialize();
+				_initialized = true;
+			}
+		}
+
+		/// &ltsummary>
+		/// Called on window initialization.
+		/// &lt/summary>
+		protected virtual void Initialize()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window opened.
+		/// &lt/summary>
+		protected virtual void OnWindowOpen()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window closed.
+		/// &lt/summary>
+		protected virtual void OnWindowClose()
+		{
+			rootVisualElement.Clear();
+			Instance = null;
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload -= BeforeAssemblyReload;
+			UnityEditor.AssemblyReloadEvents.afterAssemblyReload -= AfterAssemblyReload;
+		}
+
+		/// &ltsummary>
+		/// Called before assembly reload.
+		/// &lt/summary>
+		protected virtual void BeforeAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called during assembly reload.
+		/// &lt/summary>
+		protected virtual void DuringAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called after assembly reload.
+		/// &lt/summary>
+		protected virtual void AfterAssemblyReload()
+		{
+		}
+
+		/// &ltsummary>
+		/// Called on window disabled.
+		/// &lt/summary>
+		protected virtual void OnDisable()
+		{
+			Application.quitting -= HandleQuitting;
+		}
+
+		/// &ltsummary>
+		/// Called on window destroyed.
+		/// &lt/summary>
+		protected virtual void OnDestroy()
+		{
+			OnWindowClose();
+		}
+
+		/// &ltsummary>
+		/// Save unsaved changes.
+		/// &lt/summary>
+		public override void SaveChanges()
+		{
+			base.SaveChanges();
+		}
+
+		/// &ltsummary>
+		/// Discard unsaved changes.
+		/// &lt/summary>
+		public override void DiscardChanges()
+		{
+			base.DiscardChanges();
+		}
+
+		/// &ltsummary>
+		/// Called upon quitting Unity.
+		/// &lt/summary>
+		protected virtual void HandleQuitting()
+		{
+			if (hasUnsavedChanges) SaveChanges();
+		}
+
+		/// &ltsummary>
+		/// Create user interface.
+		/// &lt/summary>
+		protected virtual void LayoutUI()
+		{
+		}
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Node Blueprint Window
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								The node blueprint window is the editor window for creating custom nodes. You can visually click together how you want your nodes to 
+								look like. It also inherits from AdvancedEditorWindow.cs and implements the assembly reload window reload.<br>
+								One of the main issues 'Macadamia' had was that the editor window reset when Unity did it's assembly reload (after for example 
+								changing a script). To fix this, I added window reloading after the assembly reload. This reloads the user interface and back-end data 
+								in the window making the window stay the same after assembly reloads.
+							</p>
+
+							<p>
+								You can find the full NodeBlueprintWindow.cs script below.
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System;
+using System.Collections;
+using Hephaestus.Tools;
+using Hephaestus.Tools.Visual_Elements;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
+using PopupWindow = UnityEditor.PopupWindow;
+
+namespace Hephaestus.Graph_Creation_Toolbox
+{
+	public class NodeBlueprintWindow : AdvancedEditorWindow
+	{
+		//Global variables
+		private string _currentNodeBlueprintName;
+		public string CurrentNodeBlueprintName
+		{
+			get => _currentNodeBlueprintName;
+			set
+			{
+				_currentNodeBlueprintName = value;
+				_loadedNodeBlueprintLabel.text = $"Current Node Blueprint: &ltb>&lti>{value}&ltb>&lti>";
+			}
+		}
+		
+		public string LoadedNodeBlueprintPath => $"{ExplorerPaths.SAVED_NODES_FOLDER_PATH}/{CurrentNodeBlueprintName}{ExplorerPaths.SAVE_FORMAT}";
+		
+		//Undo and redo stacks
+		public Stack Changes = new Stack();
+		public Stack UndidChanges = new Stack();
+		
+		
+		//Private variables
+		public EditorNode EditorNode;
+		private NodeBlueprint _assemblyReloadData;
+		
+		//Visual Elements
+		private GraphView _graphView;
+		
+		private Toolbar _toolbar;
+		private Label _loadedNodeBlueprintLabel;
+		private Button _loadNodeBlueprintButton;
+		private Button _saveNodeBlueprintButton;
+		private Button _saveNodeBlueprintAsButton;
+		private Button _clearNodeBlueprintButton;
+		
+		private Button _undoButton;
+		private Button _redoButton;
+		
+		private VisualElement _zoneListContainer;
+		public ZoneBlueprintElement InputZone;
+		public ZoneBlueprintElement OutputZone;
+		public ZoneBlueprintElement ExtensionZone;
+		
+		//Events
+		public event Action OnNodeBlueprintLoaded;
+		public event Action OnNodeBlueprintSaved;
+		public event Action OnNodeBlueprintSavedAs;
+		public event Action OnNodeBlueprintCleared;
+		
+		#region Window
+		[MenuItem("Graph Creation Toolbox/Node Blueprinting")]
+		public static void CreateGraphViewWindow()
+		{
+			CreateWindow&ltNodeBlueprintWindow>(
+				"Node Blueprinting", 
+				"This node blueprint has unsaved changes. Would you like to save?"
+				);
+		}
+		
+		protected override void OnEnable()
+		{
+			ConstantValues.CreateInstance();
+			base.OnEnable();
+		}
+		
+		protected override void OnWindowClose()
+		{
+			base.OnWindowClose();
+			OnNodeBlueprintLoaded = null;
+			OnNodeBlueprintSaved = null;
+			OnNodeBlueprintSavedAs = null;
+			OnNodeBlueprintCleared = null;
+			ConstantValues.DestroyInstance();
+		}
+		
+		protected override void BeforeAssemblyReload()
+		{
+			base.BeforeAssemblyReload();
+			_assemblyReloadData = this.GenerateNodeBlueprint();
+		}
+		
+		protected override void DuringAssemblyReload()
+		{
+			base.DuringAssemblyReload();
+		}
+		
+		protected override void AfterAssemblyReload()
+		{
+			ConstantValues.CreateInstance();
+			base.AfterAssemblyReload();
+			this.LoadNodeBlueprint(_assemblyReloadData);
+			_assemblyReloadData = null;
+		}
+		
+		public override void SaveChanges()
+		{
+			base.SaveChanges();
+			SaveButtonClicked();
+		}
+		
+		public override void DiscardChanges()
+		{
+			base.DiscardChanges();
+		}
+		
+		protected override void LayoutUI()
+		{
+			base.LayoutUI();
+			
+			//Create toolbar
+			LayoutToolbar();
+			
+			//Create zone definition lists
+			_zoneListContainer = new ColumnElement();
+			_zoneListContainer.BringToFront();
+			_zoneListContainer.style.backgroundColor = new StyleColor(new Color(0.2196f, 0.2196f, 0.2196f, 1));
+			_zoneListContainer.style.width = 210;
+			rootVisualElement.Add(_zoneListContainer);
+			
+			InitZoneLists();
+			
+			_zoneListContainer.Add(InputZone);
+			_zoneListContainer.Add(OutputZone);
+			_zoneListContainer.Add(ExtensionZone);
+			
+			//Create graph
+			LayoutGraphView();
+		}
+		#endregion
+		
+		#region Toolbar
+		/// &ltsummary>
+		/// Layout toolbar user interface.
+		/// &lt/summary>
+		private void LayoutToolbar()
+		{
+			//Layout Toolbar
+			_toolbar = new Toolbar() { style = { paddingTop = 2, paddingBottom = 2, minHeight = 26 } };
+			rootVisualElement.Add(_toolbar);
+			
+			//Layout current graph Label
+			_loadedNodeBlueprintLabel = new Label { style = { alignSelf = Align.Center, marginRight = 10 } };
+			_toolbar.Add(_loadedNodeBlueprintLabel);
+			CurrentNodeBlueprintName = "New Node Blueprint";
+			
+			//Layout load Button
+			_loadNodeBlueprintButton = new Button { text = "Load" };
+			_toolbar.Add(_loadNodeBlueprintButton);
+			_loadNodeBlueprintButton.clicked += LoadButtonClicked;
+			
+			//Layout save Button
+			_saveNodeBlueprintButton = new Button { text = "Save" };
+			_toolbar.Add(_saveNodeBlueprintButton);
+			_saveNodeBlueprintButton.clicked += SaveButtonClicked;
+			
+			//Layout save as Button
+			_saveNodeBlueprintAsButton = new Button { text = "Save As" };
+			_toolbar.Add(_saveNodeBlueprintAsButton);
+			_saveNodeBlueprintAsButton.clicked += SaveAsButtonClicked;
+		
+			//Layout clear Button
+			_clearNodeBlueprintButton = new Button { text = "Clear" };
+			_toolbar.Add(_clearNodeBlueprintButton);
+			_clearNodeBlueprintButton.clicked += ClearButtonClicked;
+			
+			//Undo change Button
+			_undoButton = new Button { text = "Undo" };
+			_toolbar.Add(_undoButton);
+			_undoButton.clicked += UndoButtonClicked;
+			
+			//Redo change Button
+			_redoButton = new Button { text = "Redo" };
+			_toolbar.Add(_redoButton);
+			_redoButton.clicked += RedoButtonClicked;
+		}
+		
+		/// &ltsummary>
+		/// Called when load button is clicked.
+		/// &lt/summary>
+		private void LoadButtonClicked()
+		{
+			PopupWindow.Show(_loadNodeBlueprintButton.worldBound, new LoadNodePopupContent(this, () =>
+			{
+				OnNodeBlueprintLoaded?.Invoke();
+				Changes.Clear();
+				UndidChanges.Clear();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when save button is clicked.
+		/// &lt/summary>
+		private void SaveButtonClicked()
+		{
+			this.SaveNodeBlueprint();
+			OnNodeBlueprintSaved?.Invoke();
+			SetUnsavedChanges(false);
+		}
+		
+		/// &ltsummary>
+		/// Called when save as button is clicked.
+		/// &lt/summary>
+		private void SaveAsButtonClicked()
+		{
+			PopupWindow.Show(_saveNodeBlueprintAsButton.worldBound, new SaveNodeAsPopupContent(this, () =>
+			{
+				OnNodeBlueprintSavedAs?.Invoke();
+				SetUnsavedChanges(false);
+			}));
+		}
+		
+		/// &ltsummary>
+		/// Called when clear button is clicked.
+		/// &lt/summary>
+		private void ClearButtonClicked()
+		{
+			var inputZoneClearedElements = InputZone.GetElements();
+			var outputZoneClearedElements = OutputZone.GetElements();
+			var extensionZoneClearedElements = ExtensionZone.GetElements();
+
+			var change = new BlueprintingWindowClearedChange(InputZone, OutputZone, ExtensionZone,
+				inputZoneClearedElements, outputZoneClearedElements, extensionZoneClearedElements);
+			
+			this.Clear();
+			OnNodeBlueprintCleared?.Invoke();
+			ZoneChange(change);
+		}
+
+		/// &ltsummary>
+		/// Called when undo button is clicked.
+		/// &lt/summary>
+		private void UndoButtonClicked()
+		{
+			var change = Changes.Pop() as IWindowChange;
+			change.UndoChange();
+			UndidChanges.Push(change);
+			SyncNodeBlueprint();
+		}
+
+		/// &ltsummary>
+		/// Called when redo button is clicked.
+		/// &lt/summary>
+		private void RedoButtonClicked()
+		{
+			var change = UndidChanges.Pop() as IWindowChange;
+			change.RedoChange();
+			Changes.Push(change);
+			SyncNodeBlueprint();
+		}
+		#endregion
+		
+		#region GraphView
+		/// &ltsummary>
+		/// Layout graph user interface.
+		/// &lt/summary>
+		private void LayoutGraphView()
+		{
+			_graphView = new GraphView() { name = "Node Example Graph" };
+			rootVisualElement.Add(_graphView);
+			_graphView.StretchToParentSize();
+			_graphView.SendToBack();
+			
+			EditorNode = new EditorNode().Create(CreateInstance&ltNodeBlueprint>(), _graphView, new Vector2(275, 75)) as EditorNode;
+		}
+		#endregion
+		
+		#region User Interface
+		/// &ltsummary>
+		/// Initialize zone definition lists.
+		/// &lt/summary>
+		private void InitZoneLists()
+		{
+			InputZone = new ZoneBlueprintElement("Input Zone");
+			OutputZone = new ZoneBlueprintElement("Output Zone");
+			ExtensionZone = new ZoneBlueprintElement("Extension Zone");
+			
+			InputZone.style.paddingTop = 5;
+			OutputZone.style.paddingTop = 10;
+			ExtensionZone.style.paddingTop = 10;
+			
+			InputZone.OnValueChangedEvent += change =>
+			{                                                                                                                  
+				EditorNode.GetBlueprint().inputZoneBlueprint = InputZone.ZoneBlueprint;
+				ZoneChange(change);
+			};
+			OutputZone.OnValueChangedEvent += change =>
+			{
+				EditorNode.GetBlueprint().outputZoneBlueprint = OutputZone.ZoneBlueprint;
+				ZoneChange(change);
+			};
+			ExtensionZone.OnValueChangedEvent += change =>
+			{
+				EditorNode.GetBlueprint().extensionZoneBlueprint = ExtensionZone.ZoneBlueprint;
+				ZoneChange(change);
+			};
+		}
+
+		/// &ltsummary>
+		/// Handle change in Node's zone.
+		/// &lt/summary>
+		/// &ltparam name="change">&lt/param>
+		private void ZoneChange(IWindowChange change)
+		{
+			EditorNode.RefreshFields();
+			Changes.Push(change);
+			UndidChanges.Clear();
+			SetUnsavedChanges(true);
+		}
+
+		/// &ltsummary>
+		/// Sync Editor Node with Blueprint defined in UI.
+		/// &lt/summary>
+		public void SyncNodeBlueprint()
+		{
+			EditorNode.GetBlueprint().inputZoneBlueprint = InputZone.ZoneBlueprint;
+			EditorNode.GetBlueprint().outputZoneBlueprint = OutputZone.ZoneBlueprint;
+			EditorNode.GetBlueprint().extensionZoneBlueprint = ExtensionZone.ZoneBlueprint;
+			EditorNode.RefreshFields();
+		}
+		#endregion
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Node Blueprint Save Utility
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								The node blueprint save utility is called upon to save, load and clear the node blueprint window.
+							</p>
+
+							<p>
+								You can find the full NodeBlueprintSaveUtility.cs script below.
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+
+namespace Hephaestus.Graph_Creation_Toolbox
+{
+	public static class NodeBlueprintSaveUtility
+	{
+		#region Saving
+		/// &ltsummary>
+		/// Save Node Blueprint
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to save&lt/param>
+		public static void SaveNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			//Check if previous save exists.
+			bool saveExists = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeBlueprintWindow.LoadedNodeBlueprintPath);
+			
+			//Generate new blueprint to save.
+			NodeBlueprint newNodeBlueprint = nodeBlueprintWindow.GenerateNodeBlueprint();
+			
+			if (saveExists)
+			{
+				//Overwrite previous save.
+				var savedAsset = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeBlueprintWindow.LoadedNodeBlueprintPath);
+				savedAsset.PopulateFromOtherInstance(newNodeBlueprint);
+				EditorUtility.SetDirty(savedAsset);
+				AssetDatabase.SaveAssetIfDirty(savedAsset);
+			}
+			else
+			{
+				//Create new save.
+				AssetDatabase.CreateAsset(newNodeBlueprint, nodeBlueprintWindow.LoadedNodeBlueprintPath);
+			}
+		}
+
+		/// &ltsummary>
+		/// Generate a Node Blueprint from Node Blueprint Window
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to generate Blueprint from&lt/param>
+		/// &ltreturns>Generated Blueprint&lt/returns>
+		public static NodeBlueprint GenerateNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			//Make sure the node's blueprint matches up with the UI and get it.
+			nodeBlueprintWindow.SyncNodeBlueprint();
+			var currentNodeBlueprint = nodeBlueprintWindow.EditorNode.GetBlueprint();
+			
+			//Make new blueprint instance and populate it.
+			NodeBlueprint newNodeBlueprint = ScriptableObject.CreateInstance&ltNodeBlueprint>();
+			newNodeBlueprint.PopulateFromOtherInstance(currentNodeBlueprint);
+			newNodeBlueprint.name = nodeBlueprintWindow.CurrentNodeBlueprintName;
+			
+			return newNodeBlueprint;
+		}
+		
+		/// &ltsummary>
+		/// Save Blueprint as newName
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to save&lt/param>
+		/// &ltparam name="newName">Name to save as&lt/param>
+		public static void SaveNodeBlueprintAs(this NodeBlueprintWindow nodeBlueprintWindow, string newName)
+		{
+			//Check if save with 'newName' exists.
+			if (AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>($"{ExplorerPaths.SAVED_NODES_FOLDER_PATH}/{newName}{ExplorerPaths.SAVE_FORMAT}"))
+			{
+				//Open UI confirmation window.
+				if (!EditorUtility.DisplayDialog(
+						"Overwrite File?",
+						$"Another node with the name '{newName}' already exists. Saving now will result in overwriting that file.", 
+						"Save anyway", 
+						"Cancel"))
+				{
+					//Canceled save.
+					return;
+				}
+			}
+			
+			//Proceed to save.
+			nodeBlueprintWindow.CurrentNodeBlueprintName = newName;
+			SaveNodeBlueprint(nodeBlueprintWindow);
+		}
+
+		#endregion
+
+		#region Loading
+		/// &ltsummary>
+		/// Load User Interface and Editor Node based on Blueprint saved at nodeDataPath
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to load User Interface and Editor Node&lt/param>
+		/// &ltparam name="nodeDataPath">Path where Blueprint to load is saved&lt/param>
+		public static void LoadNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow, string nodeDataPath)
+		{
+			NodeBlueprint loadedNodeBlueprint = AssetDatabase.LoadAssetAtPath&ltNodeBlueprint>(nodeDataPath);
+			LoadNodeBlueprint(nodeBlueprintWindow, loadedNodeBlueprint);
+		}
+		
+		/// &ltsummary>
+		/// Load User Interface and Editor Node based on Blueprint.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to load User Interface and Editor Node&lt/param>
+		/// &ltparam name="nodeBlueprint">Blueprint to load&lt/param>
+		public static void LoadNodeBlueprint(this NodeBlueprintWindow nodeBlueprintWindow, NodeBlueprint nodeBlueprint)
+		{
+			nodeBlueprintWindow.ClearWithoutNotify();
+			
+			nodeBlueprintWindow.InputZone.Load(nodeBlueprint.inputZoneBlueprint);
+			nodeBlueprintWindow.OutputZone.Load(nodeBlueprint.outputZoneBlueprint);
+			nodeBlueprintWindow.ExtensionZone.Load(nodeBlueprint.extensionZoneBlueprint);
+			
+			nodeBlueprintWindow.CurrentNodeBlueprintName = nodeBlueprint.name;
+			
+		   nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+
+		#endregion
+
+		#region Clearing
+		/// &ltsummary>
+		/// Clear window and call change events.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to clear&lt/param>
+		public static void Clear(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			nodeBlueprintWindow.InputZone.Clear();
+			nodeBlueprintWindow.OutputZone.Clear();
+			nodeBlueprintWindow.ExtensionZone.Clear();
+			nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+		
+		/// &ltsummary>
+		/// Clear window without calling change events.
+		/// &lt/summary>
+		/// &ltparam name="nodeBlueprintWindow">Window to clear&lt/param>
+		public static void ClearWithoutNotify(this NodeBlueprintWindow nodeBlueprintWindow)
+		{
+			nodeBlueprintWindow.InputZone.ClearWithoutNotify();
+			nodeBlueprintWindow.OutputZone.ClearWithoutNotify();
+			nodeBlueprintWindow.ExtensionZone.ClearWithoutNotify();
+			nodeBlueprintWindow.SyncNodeBlueprint();
+		}
+
+		#endregion
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
+
+				<h1 class="major"></h1>
+
+				<!-- <h2>More media</h2>
+				
+				<span class="image fit"><img src="images/Macadamia_Screenshot_1.png" alt="" /></span> -->
+
+			</div>
+		</section>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+
+</body>
+
+</html>

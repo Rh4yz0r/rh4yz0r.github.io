@@ -12,13 +12,12 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" href="assets/css/main.css" />
-	<noscript>
-		<link rel="stylesheet" href="assets/css/noscript.css" />
-	</noscript>
+	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.css" rel="stylesheet" />
 </head>
 
 <!-- Body -->
-<body class="is-preload" style="background-image: url(images/Backgrounds/Astral_Drift_Page_Background_Dark.png); background-size: contain;">
+<body class="is-preload">
 
 	<!-- Header -->
 	<header id="header2">
@@ -30,52 +29,8 @@
 		</nav>
 	</header>
 
-	<!-- Sidebar -->
-	<!-- <section id="sidebar2">
-		<div class="inner">
-			<h3 class="major">Year made</h3>
-			<ul>
-				<li>2023</li>
-			</ul>
-			<h3 class="major">Engine</h3>
-			<ul>
-				<li>Unity3D</li>
-				<li>(Figma)</li>
-			</ul>
-			<h3 class="major">Language</h3>
-			<ul>
-				<li>C#</li>
-			</ul>
-			<h3 class="major">Contribution</h3>
-			<ul>
-				<li>User Interface Design & Development</li>
-				<li>Ship Customization</li>
-				<li>Weapon Management</li>
-				<li>Data Saving</li>
-				<li>Audio Design & Implementation</li>
-				<li>GameObject Pooling</li>
-			</ul>
-			<h3 class="major">Project Duration</h3>
-			<ul>
-				<li>5 Months</li>
-			</ul>
-			<h3 class="major">Team</h3>
-			<ul>
-				<li>Me</li>
-				<li>4 Other game developers</li>
-				<li>5 Other 3D artists</li>
-			</ul>
-			<h3 class="major">Links</h3>
-			<ul class="icons">
-				<ul>
-					<li>No links available</li>
-				</ul>
-			</ul>
-		</div>
-	</section> -->
-
 	<!-- Wrapper -->
-	<div id="wrapper">
+	<div id="wrapper" style="background-image: url(images/Backgrounds/Astral_Drift_Page_Background_Dark.png); background-size: contain;">
 
 		<!-- Main -->
 		<section id="main" class="wrapper center style2">
@@ -140,9 +95,10 @@
 
 				<h2>Description</h2>
 
-				<p>In the third year of my Bachelor at the <a href="https://studiegids.hva.nl/hbo-ict-gd-vt/2022-2023">AUAS</a> I worked on Astral Drift.<br>
+				<p>
+					In the third year of my Bachelor at the <a href="https://studiegids.hva.nl/hbo-ict-gd-vt/2022-2023">AUAS</a> I worked on Astral Drift.<br>
 					Astral Drift is a mobile space themed "Shoot 'em up" with player ship customization, a multitude of different enemies and 5 hand made levels.
-					This project taught me many things, both about programming and about working in a (for me up untill that point) large team.
+					This project taught me many things, both about programming and about working in a (for me up until that point) large team.
 				</p>
 
 				<h2>What did I learn?</h2>
@@ -155,47 +111,536 @@
 				<li>Improve my knowledge on creating developer tools.</li>
 				<p></p>
 
-				<!-- <h2>Description</h2>
+				<h2>Additional info</h2>
+				
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Game Object Pooling
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+  							<p style="padding-top: 10px;">
+								I developed the game object pooling system for the game. This system is used for pooling enemies, bullets, 
+								pickups and particle effects. By using object pooling I reduced the amount of calls to create new objects and significantly 
+								improved performance, which is crucial for mobile games.
+							</p>
 
-				<p>
-					Astral Drift is a mobile space themed "Shoot 'em up" with player ship customization, a multitude of different enemies and 5 hand made levels. 
-					The player can customize their spaceship with multiple different weapons with different characteristics. 
-					These weapons can be unlocked after defeating enemies and picking up their scrap. 
-					It's up to the player how to customize their ship in order to face different challenges.
-				</p>
+							<p>
+								In the game object pool manager inspector, object pools can be created 
+								by adding new game object pool to the list of managed game object pools. To do this, the list item requires a name, prefab and 
+								the amount of objects to pool (see image below).
+							</p>
 
+							<span class="image fit"><img src="images/Astral_Drift/GameObject_Pooling_Manager_Inspector.png" alt="" /></span>
+							
+							<p>
+								The manager has built in enabling and disabling of debug messages and catches potential issues. For example, when a pool 
+								is empty but a object is requested, it will double the size of the object pool, creating new objects and returns a new object. 
+								A warning will also be given to warn the developers that increasing the original pool size is recommended.<br>
+							</p>
 
-				<h2>Backstory</h2>
+							<p>
+								You can find the full GameObjectPoolManager.cs script below.
+							</p>
 
-				<p>
-					This game was made during my thematic semester in Gameplay Engineering in my third year of the Bachelor in Game Development. 
-					It was made on the instructions of our client Alexander Bonnee and in collaboration with the Amsterdam Mediacollege.
-				</p>
-				<p>
-					We started out with a very basic prototype made by a previous team, but our client wanted it to be totally reworked.
-					So we basically started anew, scrapping a lot of old parts of the game, reusing what was usefull.
-					At this time we also started working together with five students from the Amsterdam Mediacollege, who would be responsible for creating the game's graphics.
-				</p>
-				<p>
-					In total the project took around three months, after which we delivered the project to our client along with documents detailing everything we'd done.
-					In the future, a different team will continue this project in order to add more content to the game. 
-					The game will be released on Google Play at a later date.
-				</p>
+							<pre>
+								<code class="language-csharp">
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
+/*
 
-				<h2>My contribution</h2>
+ Description:
 
-				<p>
-					During this project I worked on different parts of the game. I started out working on the back-end systems such as user preference and data saving, 
-					customizing the player's spaceship, player and enemy weapon creation, GameObject pooling and the Audio manager. 
-					These systems were made to be reusable and easy to use for the other developers. 
-				</p>
+ This script manages all of the GameObject pools.
+ You can create GameObjectPools in the inspector list, set the prefab, amount, name, etc.
+ You can Get GameObjects from the any pool through name or reference.
+ Be sure to Return them to the pool after use or deactivation.
+ When a pool is asked for an item, but every single one is in use, it automatically doubles in size and returns a newly generated one.
+ To reset the pools to their original size, you can call ResetObjectPools.
 
-				<p>
-					Later on I also worked on designing and implementing the user interface for the garage where the player customizes their spaceship. 
-					You can find a picture of the Figma prototype below at "More media". 
-					The Figma prototype was made in order to ensure the UI was intuitive and easy to use.
-				</p> -->
+ */
+
+[System.Serializable]
+public class GameObjectPool
+{
+	[Tooltip("Name used for identifying this pool")] public string Name;
+	[Tooltip("GameObject Prefab to pool")] public GameObject GameObjectPrefab;
+	[SerializeField, Tooltip("Amount of GameObjects to pool")] private uint Amount;
+	[Tooltip("List of pooled GameObjects")] public Queue&ltGameObject> PooledGameObjects;
+	[HideInInspector] public List&ltGameObject> poolList = new List&ltGameObject>();
+	public Transform Library { get; set; } //Parent GameObject for pool items.
+	public uint OriginalAmount { get; set; } //Used for doubling and resetting pool.
+	public uint CurrentAmount { get => Amount; set => Amount = value; } //Used for doubling and resetting pool.
+
+	public GameObjectPool(string name, GameObject prefab, uint objectAmount)
+	{
+		this.Name = name;
+		this.GameObjectPrefab = prefab;
+		this.Amount = objectAmount;
+	}
+}
+
+public class GameObjectPoolManager : MonoBehaviour
+{
+	[Tooltip("List of GameObject pools")] public List&ltGameObjectPool> gameObjectPools; //Init in Inspector
+	private Dictionary&ltstring, GameObjectPool> _poolDict;
+
+	public bool enableEditorLogs = false;
+	private bool _editorLogs = false;
+
+	#region Singleton
+	public static GameObjectPoolManager Instance { get; private set; }
+	private void Awake()
+	{
+		if (Instance != null && Instance != this) { Destroy(this.gameObject); }
+		else { Instance = this; }
+	}
+	#endregion
+
+	private void Start()
+	{
+		SetOriginalAmounts();
+		PopulatePoolDictionary();
+		PopulateObjectPools();
+
+#if UNITY_EDITOR
+		_editorLogs = enableEditorLogs;
+#endif
+	}
+
+	/// &ltsummary>
+	/// Sets the original pool amount.
+	/// &lt/summary>
+	private void SetOriginalAmounts()
+	{
+		foreach (GameObjectPool pool in gameObjectPools)
+		{
+			pool.OriginalAmount = pool.CurrentAmount;
+		}
+	}
+
+	/// &ltsummary>
+	/// Instantiate all pools and all pool items.
+	/// &lt/summary>
+	private void PopulateObjectPools()
+	{
+		foreach (GameObjectPool pool in gameObjectPools)
+		{
+			pool.PooledGameObjects = new Queue&ltGameObject>();
+
+			GameObject library = new GameObject($"{pool.Name} Pool");
+			library.transform.parent = this.gameObject.transform;
+			pool.Library = library.transform;
+
+			for (int i = 0; i &lt pool.OriginalAmount; i++)
+			{
+				GameObject temp = Instantiate(pool.GameObjectPrefab, library.transform);
+				temp.SetActive(false);
+				pool.PooledGameObjects.Enqueue(temp);
+				pool.poolList.Add(temp);
+			}
+		}
+	}
+
+	/// &ltsummary>
+	/// Resets all pools to the original amounts.
+	/// &lt/summary>
+	public void ResetObjectPools()
+	{
+		for (int i = 0; i &lt gameObjectPools.Count; i++)
+		{
+			for (int j = 0; j &lt gameObjectPools[i].poolList.Count; j++)
+			{
+				GameObject item = gameObjectPools[i].poolList[j];
+				if (gameObjectPools[i].PooledGameObjects.Contains(item)) continue;
+
+				ReturnGameObjectToPool(gameObjectPools[i], item);
+			}
+		}
+	}
+
+	/// &ltsummary>
+	/// Populates Dictionary of pools for getting by PoolName.
+	/// &lt/summary>
+	private void PopulatePoolDictionary()
+	{
+		_poolDict = new Dictionary&ltstring, GameObjectPool>();
+
+		foreach (GameObjectPool pool in gameObjectPools)
+		{
+			_poolDict.Add(pool.Name, pool);
+		}
+	}
+
+	/// &ltsummary>
+	/// Returns the GameObjectPool with given PoolName.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPoolName">Name of pool you want to get&lt/param>
+	/// &ltreturns>&lt/returns>
+	public GameObjectPool GetPoolFromName(string gameObjectPoolName)
+	{
+		_poolDict.TryGetValue(gameObjectPoolName, out var gameObjectPool);
+		if (_editorLogs && gameObjectPool == null) 
+			Debug.LogError($"Couldn't find pool with name: {gameObjectPoolName}");
+		return gameObjectPool;
+	}
+
+	/// &ltsummary>
+	/// Returns a GameObject from given Pool.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPool">Pool to get the GameObject from&lt/param>
+	/// &ltreturns>&lt/returns>
+	public GameObject GetObjectFromPool(GameObjectPool gameObjectPool)
+	{
+		GameObject go;
+
+		try { go = gameObjectPool.PooledGameObjects.Dequeue(); }
+		catch
+		{
+			if (_editorLogs) 
+				Debug.LogWarning($"Tried to get GameObject from {gameObjectPool.Name}, but pool was empty. Doubling pool size.");
+			DoublePoolSize(gameObjectPool);
+			go = gameObjectPool.PooledGameObjects.Dequeue();
+		}
+		return go;
+	}
+
+	/// &ltsummary>
+	/// Returns a GameObject from pool with given PoolName.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPoolName">Name of pool to get the GameObject from&lt/param>
+	/// &ltreturns>&lt/returns>
+	public GameObject GetObjectFromPool(string gameObjectPoolName)
+	{
+		return GetObjectFromPool(GetPoolFromName(gameObjectPoolName));
+	}
+
+	/// &ltsummary>
+	/// Return given GameObject to pool with given Pool.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPool">Pool to return GameObject to&lt/param>
+	/// &ltparam name="gameObject">GameObject to return to pool&lt/param>
+	public void ReturnGameObjectToPool(GameObjectPool gameObjectPool, GameObject gameObject)
+	{
+		if (gameObject == null) return;
+
+		gameObject.SetActive(false);
+		gameObject.transform.parent = gameObjectPool.Library;
+		gameObjectPool.PooledGameObjects.Enqueue(gameObject);
+	}
+
+	/// &ltsummary>
+	/// Return given GameObject to pool with given PoolName.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPoolName">Name of pool to return GameObject to&lt/param>
+	/// &ltparam name="gameObject">GameObject to return to pool&lt/param>
+	public void ReturnGameObjectToPool(string gameObjectPoolName, GameObject gameObject)
+	{
+		ReturnGameObjectToPool(GetPoolFromName(gameObjectPoolName), gameObject);
+	}
+
+	/// &ltsummary>
+	/// Doubles given pool.
+	/// Instantiates and adds the current amount of items in the pool, then doubles the current amount.
+	/// &lt/summary>
+	/// &ltparam name="gameObjectPool">Pool which you want to double&lt/param>
+	private void DoublePoolSize(GameObjectPool gameObjectPool)
+	{
+		for (int i = 0; i &lt gameObjectPool.CurrentAmount; i++)
+		{
+			GameObject temp = Instantiate(gameObjectPool.GameObjectPrefab, gameObjectPool.Library.transform);
+			temp.SetActive(false);
+			gameObjectPool.PooledGameObjects.Enqueue(temp);
+			gameObjectPool.poolList.Add(temp);
+			if (_editorLogs) 
+				Debug.LogWarning("Pool has been doubled, consider increasing original pool size!");
+		}
+
+		gameObjectPool.CurrentAmount *= 2;
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Audio Management
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								I developed the audio management system for the game. This system is used for storing and playing sound effects and has built in 
+								enabling and disabling of debug messages. In the inspector developers can define the list of sound effects for the game (see image below). 
+								Each sound effect needs a name, any number of sound clips and some audio source settings.
+							</p>
+
+							<span class="image fit"><img src="images/Astral_Drift/Audio_Manager_Inspector.png" alt="" /></span>
+
+							<p>
+								The game object pool manager is used to create a pool of game objects, each with an audio source. When the audio manager gets a request to play 
+								a sound it gets one of the audio clips from the defined sound effects at random, which allows for randomized sound variation and reduce 
+								repetitive sounds, and gets a game object with an audio source from the game object pool manager, which then plays the sound clip.<br>
+								This method of managing game audio can only be used in 2D mobile games, as it's not spatial audio. In 3D games with spatial audio, 
+								audio will have to be managed differently.
+							</p>
+
+							<p>
+								You can find the full AudioManager.cs script below.
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+/*
+ 
+ Description:
+ 
+ This script manages all the audio in the game.
+ You can create Sound items in the inspector list, set the AudioClips, 
+ priority, volume, etc.
+ It works kind off like the GameObjectPoolManager.cs script, 
+ it also needs an instance of that script to work.
+ The GameObjectPoolManager houses a pool of AudioPlayer GameObjects, 
+ which are used to play sounds (this is to reduce clipping and cutting).
+ You can PlaySound through a name or reference.
+ The AudioPlayer will be automatically returned to the pool once finished playing.
+ You can also PlayLooped, which will keep playing until you tell it to StopLooped.
+ 
+ */
+
+[System.Serializable]
+public class Sound
+{
+	public string Name;
+	public AudioClip[] AudioClip;
+	[Range(0, 256)] public int Priority = 128;
+	[Range(0, 1)] public float Volume = 1;
+	[Range(-3, 3)] public float Pitch = 1;
+}
+
+public class AudioManager : MonoBehaviour
+{
+	public List&ltSound> sounds;
+	private Dictionary&ltstring, Sound> _soundDict = new();
+	private List&ltAudioSource> loopingSounds = new();
+
+	public Transform audioPlayerPrefab;
+
+	public bool enableEditorLogs = false;
+	private bool _editorLogs = false;
+	private float volume;
+
+	private System.Random rnd;
+
+	#region Singleton
+	public static AudioManager Instance { get; private set; }
+	private void Awake()
+	{
+		if (Instance != null && Instance != this) { Destroy(this.gameObject); }
+		else { Instance = this; }
+	}
+	#endregion
+
+	private void Start()
+	{
+		PopulatePoolDictionary();
+		volume = SessionInventoryManager.Instance.Inventory.Volume.Value;
+		rnd = new System.Random();
+
+#if UNITY_EDITOR
+		_editorLogs = enableEditorLogs;
+#endif
+	}
+
+	private void OnEnable()
+	{
+		CreateAudioSourcePool();
+	}
+
+	/// &ltsummary>
+	/// Create an AudioPlayer GameObjectPool.
+	/// &lt/summary>
+	private void CreateAudioSourcePool()
+	{
+		var audioSourcePool = new GameObjectPool("AudioSources", audioPlayerPrefab.gameObject, 10);
+		GameObjectPoolManager.Instance.gameObjectPools.Add(audioSourcePool);
+	}
+
+	/// &ltsummary>
+	/// Populates Dictionary of Sounds for getting by SoundName.
+	/// &lt/summary>
+	private void PopulatePoolDictionary()
+	{
+		_soundDict = new Dictionary&ltstring, Sound>();
+
+		foreach (Sound audioItem in sounds)
+		{
+			_soundDict.Add(audioItem.Name, audioItem);
+		}
+	}
+
+	/// &ltsummary>
+	/// Play given Sound.
+	/// &lt/summary>
+	/// &ltparam name="sound">Sound to play&lt/param>
+	public void PlaySound(Sound sound)
+	{
+		var sourceGameObject = GameObjectPoolManager.Instance.GetObjectFromPool("AudioSources");
+		sourceGameObject.SetActive(true);
+		var audioSource = sourceGameObject.GetComponent&ltAudioSource>();
+		audioSource.clip = sound.AudioClip[rnd.Next(0, sound.AudioClip.Length)];
+		audioSource.volume = sound.Volume * volume;
+		audioSource.pitch = sound.Pitch;
+		audioSource.priority = sound.Priority;
+		audioSource.loop = false;
+		audioSource.Play();
+		StartCoroutine(ReturnAudioPlayerToPool(sourceGameObject, audioSource.clip));
+	}
+
+	/// &ltsummary>
+	/// Play Sound with given name.
+	/// &lt/summary>
+	/// &ltparam name="name">Name of Sound you want to play&lt/param>
+	public void PlaySound(string name)
+	{
+		PlaySound(FindAudioItem(name));
+	}
+
+	/// &ltsummary>
+	/// Play given Sound on loop until StopLooped is called.
+	/// &lt/summary>
+	/// &ltparam name="sound">Sound to play on loop&lt/param>
+	public void PlayLooped(Sound sound)
+	{
+		var sourceGameObject = GameObjectPoolManager.Instance.GetObjectFromPool("AudioSources");
+		sourceGameObject.SetActive(true);
+		AudioSource audioSource = sourceGameObject.GetComponent&ltAudioSource>();
+		audioSource.clip = sound.AudioClip[rnd.Next(0, sound.AudioClip.Length)];
+		audioSource.volume = sound.Volume * volume;
+		audioSource.pitch = sound.Pitch;
+		audioSource.priority = sound.Priority;
+		audioSource.loop = true;
+		loopingSounds.Add(audioSource);
+		audioSource.Play();
+	}
+
+	/// &ltsummary>
+	/// Play Sound with given name on loop until StopLooped is called.
+	/// &lt/summary>
+	/// &ltparam name="name">Name of sound to play on loop&lt/param>
+	public void PlayLooped(string name)
+	{
+		PlayLooped(FindAudioItem(name));
+	}
+
+	/// &ltsummary>
+	/// Stop looping given Sound.
+	/// &lt/summary>
+	/// &ltparam name="sound">Sound to stop looping&lt/param>
+	public void StopLooped(Sound sound)
+	{
+		for(int j = loopingSounds.Count - 1; j > -1; j--)
+		{
+			if (loopingSounds[j] == null) continue;
+			for (int i = 0; i &lt sound.AudioClip.Length; i++)
+			{
+				if(loopingSounds[j].clip == sound.AudioClip[i])
+				{
+					GameObjectPoolManager.Instance.ReturnGameObjectToPool(
+						"AudioSources", 
+						loopingSounds[j].gameObject
+						);
+					loopingSounds.Remove(loopingSounds[j]);
+					return;
+				}
+			}
+		}
+	}
+
+	/// &ltsummary>
+	/// Stop looping Sound with given name.
+	/// &lt/summary>
+	/// &ltparam name="name">Name of Sound to stop looping&lt/param>
+	public void StopLooped(string name)
+	{
+		StopLooped(FindAudioItem(name));
+	}
+
+	/// &ltsummary>
+	/// Returns AudioPlayer GameObject to pool.
+	/// &lt/summary>
+	/// &ltparam name="sourceGameObject">AudioPlayer GameObject to return to pool&lt/param>
+	/// &ltparam name="currentPlayingSound">AudioClip the AudioPlayer is currently playing&lt/param>
+	/// &ltreturns>&lt/returns>
+	// TODO: rewrite this so it does not use an IEnumerator
+	private IEnumerator ReturnAudioPlayerToPool(GameObject sourceGameObject, AudioClip currentPlayingSound)
+	{
+		yield return new WaitForSeconds(currentPlayingSound.length);
+		GameObjectPoolManager.Instance.ReturnGameObjectToPool("AudioSources", sourceGameObject);
+	}
+
+	/// &ltsummary>
+	/// Returns Sound with given name.
+	/// &lt/summary>
+	/// &ltparam name="name">Name of Sound you want&lt/param>
+	/// &ltreturns>&lt/returns>
+	/// &ltexception cref="Exception">&lt/exception>
+	public Sound FindAudioItem(string name)
+	{
+		_soundDict.TryGetValue(name, out var audioItem);
+		if (audioItem == null) throw new Exception($"Couldn't find audio item with name: {name}");
+		return audioItem;
+	}
+
+	/// &ltsummary>
+	/// Sets Volume in settings menu.
+	/// &lt/summary>
+	/// &ltparam name="volume">Volume between 0 and 2&lt/param>
+	public void SetVolume(float volume)
+	{
+		Instance.volume = volume;
+		SessionInventoryManager.Instance.Inventory.Volume.Value = volume;
+		SessionInventoryManager.Instance.Inventory.Volume.Save();
+		Instance.UpdateLoopedVolume(volume);
+	}
+
+	/// &ltsummary>
+	/// Updates the looped sound volume.
+	/// &lt/summary>
+	/// &ltparam name="volume">Volume between 0 and 2&lt/param>
+	public void UpdateLoopedVolume(float volume)
+	{
+		for (int i = 0; i &lt loopingSounds.Count; i++)
+		{
+			loopingSounds[i].volume = volume * 0.5f;
+		}
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
 
 				<h1 class="major"></h1>
 
@@ -219,7 +664,8 @@
 		<script src="assets/js/breakpoints.min.js"></script>
 		<script src="assets/js/util.js"></script>
 		<script src="assets/js/main.js"></script>
-
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
 
 </body>
 
