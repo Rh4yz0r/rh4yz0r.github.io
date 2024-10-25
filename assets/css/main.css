@@ -4742,10 +4742,18 @@ input, select, textarea {
 			position: fixed;
 			vertical-align: middle;
 			left: 62.5%;
-			top: 5%;
+			top: 10%;
 			width: 300px;
   			height: 300px;
 			border-radius: 50%;
+		}
+
+	}
+
+	@media screen and (max-width: 480px) {
+
+		.avatar {
+			opacity: 0;
 		}
 
 	}
