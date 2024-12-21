@@ -83,8 +83,14 @@
 
 				<h1 class="major"></h1>
 
-				<span class="image fit"><img src="images/Visual_Scripting_Creator/Banner.png" alt="" /></span>
-				<p style="font-style: italic;">WORK IN PROGRESS SCREENSHOT</p>
+				<video controls class="image fit">
+					<source src="https://media.githubusercontent.com/media/Rh4yz0r/rh4yz0r.github.io/refs/heads/main/videos/Visual_Scripting_Creator_Workflow.webm" type="video/webm" />
+    				Your browser does not support the video tag.
+				</video>
+
+				<p>This video shows the workflow of making a new node blueprint by defining its fields and their names, accessing field values and programming its functionality.
+					After that it shows how to make a new graph, loading it into a scene and navigating through the graph using a debug menu.
+				</p>
 
 				<h1 class="major"></h1>
 
@@ -95,6 +101,9 @@
 					The 'Visual Scripting Creator' is a set of tools to create your own visual scripting tool. You can create the nodes for the node system 
 					yourself, which allows you to create any node system you want. You can also create scripts for each node and adjust or create your own 
 					graph manager, which will enable you to manage your graphs any way you want.
+				</p>
+				<p>The toolset includes useful commands like undo, redo, copy, cut and paste, alongside post assembly reload persistance. 
+					It's also made to be expandable and adjustable to be able to suit anyone's needs with minimal changes or full customization.
 				</p>
 
 				<h2>What did I learn?</h2>
@@ -109,6 +118,169 @@
 				<p></p>
 
 				<h2>Additional Info</h2>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Node Functionality Script
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								The node's functionality and field values are seperated into two scripts. The node's functionality script is automatically generated when the node 
+								blueprint is saved for the first time. The node script's variables are regenerated each time the node blueprint is saved, this is to 
+								ensure all field values stay accessable and the node's functionality isn't removed after each save.
+							</p>
+
+							<p>
+								You can find the node functionality script as it's generated below.
+							</p>
+
+							<p style="padding-top: 10px;">
+								This script is used to give the node its functionality. You can determine what the node does when the scene is initialized, 
+								when the node is entered, on update while inside the node and when the node is exited. (More functionality might be added in the future.)
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Object = UnityEngine.Object;
+using Hephaestus.Graph_Creation_Toolbox;
+
+public class ShowcaseNodeScript : NodeScript&ltShowcaseNodeVariables>, INodeScript
+{
+	public override void OnInitialize(GraphManager graphManager, NodeData data)
+	{
+		base.OnInitialize(graphManager, data);
+	}
+	
+	public override void OnEnter(GraphManager graphManager, NodeData data)
+	{
+		base.OnEnter(graphManager, data);
+	}
+	
+	public override void OnUpdate(GraphManager graphManager, NodeData data)
+	{
+		base.OnUpdate(graphManager, data);
+	}
+	
+	public override void OnExit(GraphManager graphManager, NodeData data)
+	{
+		base.OnExit(graphManager, data);
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
+
+				<div class="accordionparent">
+					<button class="accordion">
+						<i class="fa fa-code"></i> Node Blueprint Fields
+						<svg class="plus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="12" y1="5" x2="12" y2="19" />
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+						  <svg class="minus" xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" stroke="black" stroke-width="4" stroke-linecap="round">
+							<line x1="5" y1="12" x2="19" y2="12" />
+						  </svg>
+					</button>
+						<div class="panel">
+							<p style="padding-top: 10px;">
+								When making a node blueprint, you can choose between nine different field types (Enum, Float, InportPort, Int, List, OutputPort, Text, Toggle, Object).
+								 You can add your own custom fields by making a new FieldConstructor script.
+							</p>
+
+							<p>
+								You can find the Enum field constructor script as an example below.
+							</p>
+
+							<p style="padding-top: 10px;">
+								When making a custom field type it's important to set a name in GetName(), set the default field value in GetDefaultValue(), how the 
+								field in the node looks and functions in ConstructNodeField() and how the field customization field looks and functions in 
+								ConstructCustomizationView().<br>
+								Nothing else needs to be done, the rest is all handled by the tool.
+							</p>
+
+							<pre>
+								<code class="language-csharp">
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Hephaestus.Tools.Visual_Elements;
+using UnityEngine;
+using UnityEngine.UIElements;
+using VisualElement = UnityEngine.UIElements.VisualElement;
+using EnumField = Hephaestus.Tools.Visual_Elements.EnumField;
+
+namespace Hephaestus.Graph_Creation_Toolbox
+{
+	[System.Serializable]
+	public class EnumFieldConstructor : FieldConstructor
+	{
+		public override string GetName()
+		{
+			return "EnumField";
+		}
+
+		public override object GetDefaultValue()
+		{
+			return Enum.GetValues(ConstantValues.Instance.EnumTypes.First()).GetValue(0) as Enum;
+		}
+		
+		public override NodeField ConstructNodeField(FieldBlueprint blueprint)
+		{
+			var nodeField = new NodeField(blueprint);
+			
+			var field = new EnumField(Enum.GetValues(Type.GetType(blueprint.GetSetting&ltstring>("ValueTypeSignature"))).GetValue(0) as Enum);
+			field.RegisterValueChangedCallback&ltEnum>(change =>
+			{
+				(!THIS PIECE OF CODE IS COMMENTED OUT IN THE CURRENT WIP VERSION AND THUS REMOVED FROM THE EXAMPLE!)
+			});
+			nodeField.Add(field);
+			nodeField.InputField = field;
+
+			return nodeField;
+		}
+		
+		public override VisualElement ConstructCustomizationView(FieldBlueprint blueprint)
+		{
+			var customizationView = base.ConstructCustomizationView(blueprint);
+			
+			var field = new StringListField(ConstantValues.Instance.EnumTypeNames.ToArray());
+			field.SetValueWithoutNotify(Type.GetType(blueprint.GetSetting&ltstring>("ValueTypeSignature")).Name);
+			field.RegisterValueChangedCallback(change =>
+			{
+				var previousEnumType = ConstantValues.Instance.EnumTypes.Find(match => match.Name == change.previousValue);
+				var newEnumType = ConstantValues.Instance.EnumTypes.Find(match => match.Name == change.newValue);
+				
+				var previousValue = new AdvancedVariable("ValueTypeSignature", $"{previousEnumType}, {previousEnumType.Assembly.FullName}");
+				var newValue = new AdvancedVariable("ValueTypeSignature", $"{newEnumType}, {newEnumType.Assembly.FullName}");
+				using (ChangeEvent&ltAdvancedVariable> evt = ChangeEvent&ltAdvancedVariable>.GetPooled(previousValue, newValue))
+				{
+					evt.target = customizationView;
+					customizationView.SendEvent(evt);
+				}
+			});
+			customizationView.Add(field);
+
+			return customizationView;
+		}
+	}
+}
+								</code>
+							</pre>
+						</div>
+				</div>
 
 				<div class="accordionparent">
 					<button class="accordion">
